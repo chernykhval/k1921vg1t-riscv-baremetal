@@ -1,0 +1,96 @@
+#==============================================================================
+# Makefile_fit: МИНИМАЛЬНАЯ сборка binary_counter
+#------------------------------------------------------------------------------
+# В отличие от основного Makefile (берёт все файлы SDK через wildcard и
+# полагается на --gc-sections), здесь список исходников задан ЯВНО.
+# Цель — оставить только то, что реально нужно счётчику.
+#
+# Метод подбора: начать с минимума (startup + main), собрать, и по ошибкам
+# линкера "undefined reference to ..." добавлять ровно тот файл, где символ
+# определён. Так линкер сам показывает граф зависимостей по СИМВОЛАМ
+# (make отслеживает только даты файлов, а не символы).
+#
+# Сборка:  make -f Makefile_fit
+# Очистка: make -f Makefile_fit clean
+#==============================================================================
+
+TARGET_NAME = binary_counter
+
+#--- Тулчейн ------------------------------------------------------------------
+COMPILER_PATH = C:/niiet/toolchain/xpack-riscv-none-elf-gcc-13.4.0-1/bin/
+CROSS   = $(COMPILER_PATH)riscv-none-elf-
+CC      = $(CROSS)gcc
+OBJCOPY = $(CROSS)objcopy
+OBJDUMP = $(CROSS)objdump
+SIZE    = $(CROSS)size
+
+#--- Пути к SDK ---------------------------------------------------------------
+SDK_DIR   = ../../../k1921vg1t_sdk
+DEV_DIR   = $(SDK_DIR)/platform/Device/K1921VG1T
+APP_DIR   = ./app
+RETGT_DIR = $(SDK_DIR)/platform/retarget/Template/K1921VG1T
+BSP_DIR   = $(SDK_DIR)/hardware/bsp/NIIET-DEV-K1921VG1T
+
+BUILD_DIR = build_fit
+
+#--- Исходники (ЯВНЫЙ список — стартовый минимум) -----------------------------
+# Начинаем с двух файлов. Линкер подскажет, чего не хватает.
+CSRC = $(APP_DIR)/main.c \
+       $(DEV_DIR)/source/sys_init.c
+ASRC = $(DEV_DIR)/source/startup_k1921vg1t.S
+
+OBJS  = $(addprefix $(BUILD_DIR)/,$(notdir $(CSRC:.c=.o)) $(notdir $(ASRC:.S=.o)))
+VPATH = $(APP_DIR) $(DEV_DIR)/source $(RETGT_DIR) $(BSP_DIR)
+
+#--- Флаги (те же, что в основном Makefile) -----------------------------------
+MARCH   = rv32imafdc_zicsr_zifencei
+MABI    = ilp32d
+DEFINES = -DUSE_LIBC -DSYSCLK_HSE -DCKO_NONE -DHSECLK_VAL=16000000
+INCS    = -I$(DEV_DIR)/Include -I$(RETGT_DIR) -I$(BSP_DIR)
+
+LDSCRIPT = $(DEV_DIR)/ldscripts/k1921vg1t_flash.ld
+
+CFLAGS  = -march=$(MARCH) -mabi=$(MABI) -Og -g -Wall -std=gnu99 \
+          -ffunction-sections -fdata-sections $(DEFINES) $(INCS)
+
+ASFLAGS = -march=$(MARCH) -mabi=$(MABI) -g $(DEFINES) $(INCS)
+
+LDFLAGS = -march=$(MARCH) -mabi=$(MABI) -nostartfiles \
+          -T $(LDSCRIPT) -L$(DEV_DIR)/ldscripts \
+          -Wl,--gc-sections -Wl,-Map=$(BUILD_DIR)/$(TARGET_NAME).map
+
+ELF = $(BUILD_DIR)/$(TARGET_NAME).elf
+HEX = $(BUILD_DIR)/$(TARGET_NAME).hex
+LST = $(BUILD_DIR)/$(TARGET_NAME).lst
+
+#--- Правила ------------------------------------------------------------------
+all: $(ELF) $(HEX) $(LST) size
+
+$(BUILD_DIR):
+	-mkdir $(BUILD_DIR)
+
+$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
+	@echo COMPILE $<
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: %.S | $(BUILD_DIR)
+	@echo ASSEMBLE $<
+	$(CC) $(ASFLAGS) -c $< -o $@
+
+$(ELF): $(OBJS)
+	@echo LINK $@
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
+
+$(HEX): $(ELF)
+	$(OBJCOPY) -O ihex $< $@
+
+$(LST): $(ELF)
+	$(OBJDUMP) -S $< > $@
+
+size: $(ELF)
+	$(SIZE) $(ELF)
+
+clean:
+	-rmdir /S /Q $(BUILD_DIR)
+
+.PHONY: all size clean

@@ -18,6 +18,7 @@
 **/Debug/
 **/Release/
 **/build/
+**/build_fit/
 **/obj/
 
 # --- Мусор ОС / редакторов ---
