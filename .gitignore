@@ -14,7 +14,9 @@
 *.axf
 
 # --- Каталоги сборки ---
-/target/          # Rust / cargo (появится позже)
+# Rust / cargo (корень и вложенные проекты)
+/target/
+**/target/
 **/Debug/
 **/Release/
 **/build/
