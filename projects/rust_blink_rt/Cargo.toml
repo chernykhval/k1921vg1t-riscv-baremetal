@@ -1,0 +1,17 @@
+# Cargo.toml — версия проекта на готовом рантайме riscv-rt
+[package]
+name = "rust_blink_rt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# features:
+#   memory      — заставляет riscv-rt подключить наш memory.x (INCLUDE memory.x)
+#   single-hart — упрощённый старт для одного ядра (у нас доступно только hart 0)
+riscv-rt = { version = "0.18.0", features = ["memory", "single-hart"] }
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+opt-level = "s"
