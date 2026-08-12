@@ -1,0 +1,17 @@
+# Cargo.toml — вывод текста по UART0 (retarget своими руками)
+[package]
+name = "rust_uart"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# рантайм (startup + линкер), как в rust_blink_rt
+riscv-rt = { version = "0.18.0", features = ["memory", "single-hart"] }
+# НАШ сгенерированный PAC — подключаем по локальному пути (path dependency)
+k1921vg1t-pac = { path = "../k1921vg1t-pac" }
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+opt-level = "s"
