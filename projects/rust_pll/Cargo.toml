@@ -1,13 +1,11 @@
-# Cargo.toml — разгон ядра через PLL (27 → 204 МГц) + измерение частоты
+# Step 9: switch the system clock to PLL0 (27 MHz HSE -> 150 MHz) and measure it.
 [package]
 name = "rust_pll"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# рантайм (startup + линкер), как в rust_blink_rt
 riscv-rt = { version = "0.18.0", features = ["memory", "single-hart"] }
-# НАШ сгенерированный PAC — подключаем по локальному пути (path dependency)
 k1921vg1t-pac = { path = "../k1921vg1t-pac" }
 
 [profile.dev]

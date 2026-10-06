@@ -1,10 +1,6 @@
-# .cargo/config.toml — настройки сборки для cargo (аналог флагов в Makefile)
-
 [build]
-# Цель по умолчанию — наш RISC-V без ОС. Теперь `cargo build` собирает под чип,
-# а не под Windows. (Ту цель мы поставили через `rustup target add`.)
 target = "riscv32imac-unknown-none-elf"
 
 [target.riscv32imac-unknown-none-elf]
-# Передаём линкеру наш скрипт памяти link.x (аналог "-T ...ld" в Makefile).
+# Link with the project's own linker script (link.x).
 rustflags = ["-C", "link-arg=-Tlink.x"]

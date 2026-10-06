@@ -1,9 +1,6 @@
-# .cargo/config.toml — цель и флаг линкера.
-# link.x теперь даёт riscv-rt (его build.rs кладёт link.x на путь поиска),
-# поэтому -Tlink.x найдёт скрипт из крейта, а не наш (у нас его и нет).
-
 [build]
 target = "riscv32imac-unknown-none-elf"
 
 [target.riscv32imac-unknown-none-elf]
+# link.x is provided by riscv-rt; it includes memory.x from this project.
 rustflags = ["-C", "link-arg=-Tlink.x"]

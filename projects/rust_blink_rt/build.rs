@@ -1,6 +1,5 @@
-// build.rs — кладёт наш memory.x туда, где линкер его найдёт.
-// riscv-rt's link.x делает `INCLUDE memory.x`, значит memory.x должен быть
-// на пути поиска линкера. Копируем его в OUT_DIR и добавляем этот путь.
+// Copy memory.x to OUT_DIR and add it to the linker search path:
+// the link.x of riscv-rt does `INCLUDE memory.x`.
 use std::{env, fs, path::PathBuf};
 
 fn main() {

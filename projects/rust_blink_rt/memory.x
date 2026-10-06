@@ -1,15 +1,12 @@
-/* memory.x — карта памяти чипа для riscv-rt.
- * Мы даём ТОЛЬКО это; сам линкер-скрипт (link.x) предоставляет riscv-rt,
- * и он включает наш memory.x строкой INCLUDE memory.x. */
+/* K1921VG1T memory map for riscv-rt (the linker script itself comes from riscv-rt). */
 
 MEMORY
 {
-  FLASH : ORIGIN = 0x00000000, LENGTH = 1024K   /* программа */
-  RAM   : ORIGIN = 0x20000000, LENGTH = 512K    /* данные, стек */
+  FLASH : ORIGIN = 0x00000000, LENGTH = 1024K
+  RAM   : ORIGIN = 0x20000000, LENGTH = 512K
 }
 
-/* riscv-rt раскладывает секции по этим "регионам-псевдонимам".
- * Код и константы -> FLASH; изменяемые данные, стек, куча -> RAM. */
+/* Code and constants in flash; data, stack and heap in RAM. */
 REGION_ALIAS("REGION_TEXT",   FLASH);
 REGION_ALIAS("REGION_RODATA", FLASH);
 REGION_ALIAS("REGION_DATA",   RAM);

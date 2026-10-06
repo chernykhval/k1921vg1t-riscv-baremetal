@@ -1,20 +1,18 @@
-# Cargo.toml — манифест проекта (аналог заголовка Makefile: имя, версия, зависимости)
+# Step 1: blink LED1 with no crates at all — own startup code and linker script.
 [package]
 name = "rust_blink"
 version = "0.1.0"
-edition = "2021"        # редакция языка (набор правил синтаксиса), 2021 — стабильная
+edition = "2021"
 
 [[bin]]
 name = "rust_blink"
 path = "src/main.rs"
 
-# Профиль отладочной сборки. opt-level=1 — лёгкая оптимизация, чтобы код был
-# компактнее, но ещё отлаживаемым. Для мигалки хватит с запасом.
 [profile.dev]
 opt-level = 1
 
 [profile.release]
-opt-level = "s"         # оптимизация по размеру
+opt-level = "s"
 
-# Зависимостей пока НЕТ — всё пишем сами, только core (no_std).
+# No dependencies: only `core` (no_std).
 [dependencies]

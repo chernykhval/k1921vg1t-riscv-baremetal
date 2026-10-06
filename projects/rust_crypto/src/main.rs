@@ -5,9 +5,7 @@ use core::panic::PanicInfo;
 use k1921vg1t_pac as pac;
 use riscv_rt::entry;
 
-// ============================================================================
-//  ЦЕРЕМОНИЯ №1 — UART (готовый). Вывод в терминал COM4/COM5, 9600 8-N-1.
-// ============================================================================
+// UART0 output, 9600 8N1 from the 27 MHz HSE crystal (same as rust_uart).
 fn uart0_init(p: &pac::Peripherals) {
     p.rcu.hsecfg().modify(|_, w| w.en().set_bit());
     for _ in 0..100_000 {
@@ -41,7 +39,7 @@ fn uart0_send_str(p: &pac::Peripherals, s: &str) {
     }
 }
 
-// печать 32-битного числа в шестнадцатеричном виде (8 цифр)
+// Hexadecimal output of a u32 (8 digits).
 fn uart0_send_hex32(p: &pac::Peripherals, n: u32) {
     let hex = b"0123456789ABCDEF";
     for shift in (0..8).rev() {
@@ -51,7 +49,7 @@ fn uart0_send_hex32(p: &pac::Peripherals, n: u32) {
     uart0_send_byte(p, b' ');
 }
 
-// печать блока из 4 слов (128 бит) в hex
+// Print a 128-bit block (4 words) in hex.
 fn print_block(p: &pac::Peripherals, label: &str, block: &[u32; 4]) {
     uart0_send_str(p, label);
     for &w in block.iter() {
@@ -60,51 +58,44 @@ fn print_block(p: &pac::Peripherals, label: &str, block: &[u32; 4]) {
     uart0_send_str(p, "\r\n");
 }
 
-// ============================================================================
-//  ЦЕРЕМОНИЯ №2 — блок CRYPTO. Шифрование/дешифрование ОДНОГО блока (128 бит)
-//  в режиме ECB. algorithm: 0=AES-128, 1=AES-256, 2=Магма, 3=Кузнечик.
-//  Слова ключа/данных грузим КАК ЕСТЬ, без разворота байт (как в драйвере НИИЭТ);
-//  проверено эталонным вектором ГОСТ 34.12-2015 — совпадает побитно.
-// ============================================================================
+// Encrypt or decrypt one 128-bit block with the CRYPTO block in ECB mode.
+// ALGORITHM values from the SVD: 0 = AES-128, 1 = AES-256, 3 = GOST Kuznyechik.
+// Key and data words are loaded as is, without byte swapping (as in the NIIET driver);
+// verified against the GOST R 34.12-2015 test vector.
 fn crypto_process(
     p: &pac::Peripherals,
     algorithm: u8,
     decrypt: bool,
-    key: &[u32; 8],       // ключ 256 бит = 8 слов
-    data_in: &[u32; 4],   // блок данных 128 бит = 4 слова
+    key: &[u32; 8],       // 256-bit key
+    data_in: &[u32; 4],   // 128-bit block
 ) -> [u32; 4] {
-    // включить блок CRYPTO
     p.rcu.cgcfgahb().modify(|_, w| w.cryptoen().set_bit());
     p.rcu.rstdisahb().modify(|_, w| w.cryptoen().set_bit());
 
-    // загрузить ключ (8 слов, как в штатном драйвере НИИЭТ — без разворота байт)
     for i in 0..8 {
         p.crypto.key(i).value().write(|w| unsafe { w.val().bits(key[i]) });
     }
-    // загрузить входные данные (4 слова)
     for i in 0..4 {
         p.crypto.text_in(i).value().write(|w| unsafe { w.val().bits(data_in[i]) });
     }
 
-    // настроить и запустить: ECB, выбранный алгоритм, шифр/дешифр, START
     p.crypto.control().write(|w| {
         w.self_update().clear_bit();
         unsafe { w.mode().bits(0); } // 0 = ECB
         unsafe { w.algorithm().bits(algorithm); }
         if decrypt {
-            w.direction().set_bit(); // 1 = дешифрование
+            w.direction().set_bit(); // 1 = decrypt
         } else {
-            w.direction().clear_bit(); // 0 = шифрование
+            w.direction().clear_bit(); // 0 = encrypt
         }
         w.update_key().clear_bit();
         w.start().set_bit()
     });
 
-    // ждать готовности ключей, затем результата
+    // Wait for the key schedule, then for the result.
     while p.crypto.status().read().keys_ready().bit_is_clear() {}
     while p.crypto.status().read().ready().bit_is_clear() {}
 
-    // прочитать результат (4 слова, без разворота байт)
     let mut out = [0u32; 4];
     for i in 0..4 {
         out[i] = p.crypto.text_out(i).value().read().val().bits();
@@ -119,31 +110,29 @@ fn main() -> ! {
     let p = unsafe { pac::Peripherals::steal() };
     uart0_init(&p);
 
-    // ГОСТ 34.12-2015 «Кузнечик» — ОФИЦИАЛЬНЫЙ тестовый вектор из стандарта.
-    // ключ 256 бит (8 слов) — из стандарта
+    // Official Kuznyechik test vector from GOST R 34.12-2015.
     let key: [u32; 8] = [
         0x8899AABB, 0xCCDDEEFF, 0x00112233, 0x44556677,
         0xFEDCBA98, 0x76543210, 0x01234567, 0x89ABCDEF,
     ];
-    // открытый текст (блок 128 бит) — из стандарта: 1122334455667700ffeeddccbbaa9988
+    // Plaintext 1122334455667700ffeeddccbbaa9988
     let plaintext: [u32; 4] = [0x11223344, 0x55667700, 0xFFEEDDCC, 0xBBAA9988];
-    // эталонный шифртекст из стандарта: 7f679d90bebc24305a468d42b9d4edcd
+    // Expected ciphertext 7f679d90bebc24305a468d42b9d4edcd
     let expected: [u32; 4] = [0x7F679D90, 0xBEBC2430, 0x5A468D42, 0xB9D4EDCD];
 
     print_block(&p, "Plaintext:  ", &plaintext);
 
-    let cipher = crypto_process(&p, KUZNECHIK, false, &key, &plaintext);  // зашифровать
+    let cipher = crypto_process(&p, KUZNECHIK, false, &key, &plaintext);
     print_block(&p, "Ciphertext: ", &cipher);
     print_block(&p, "Expected:   ", &expected);
 
-    // главная проверка: совпал ли аппаратный результат с эталоном ГОСТ
     if cipher == expected {
         uart0_send_str(&p, "MATCH: sovpalo s GOST test-vector\r\n");
     } else {
         uart0_send_str(&p, "MISMATCH: ne sovpalo s GOST\r\n");
     }
 
-    let decrypted = crypto_process(&p, KUZNECHIK, true, &key, &cipher);   // расшифровать
+    let decrypted = crypto_process(&p, KUZNECHIK, true, &key, &cipher);
     print_block(&p, "Decrypted:  ", &decrypted);
 
     if decrypted == plaintext {

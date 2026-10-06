@@ -1,40 +1,34 @@
-/* link.x — минимальный линкер-скрипт (аналог k1921vg1t_flash.ld из C).
- * Задаёт карту памяти и раскладку секций. Урезан до предела: наша мигалка
- * не использует инициализированных глобальных переменных, поэтому возни с
- * копированием .data из Flash в RAM (как в C-startup) здесь не нужно. */
+/* Minimal linker script for K1921VG1T (counterpart of k1921vg1t_flash.ld from the SDK).
+ * The program has no initialized globals, so .data is not copied from flash to RAM. */
 
 OUTPUT_ARCH(riscv)
-ENTRY(_start)               /* точка входа — метка _start в нашем ассемблере */
+ENTRY(_start)
 
 MEMORY {
-  FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 1024K   /* программа */
-  RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 512K    /* стек, данные */
+  FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 1024K
+  RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 512K
 }
 
-/* Вершина стека — верхний край RAM. startup положит её в sp. */
+/* The stack starts at the top of RAM. */
 _stack_top = ORIGIN(RAM) + LENGTH(RAM);
 
 SECTIONS {
-  /* Код. Секция .init (наш startup) идёт ПЕРВОЙ -> попадает на адрес 0x0,
-   * откуда процессор стартует после сброса. */
+  /* .init goes first, at address 0x0, where the core starts after reset. */
   .text : {
     KEEP(*(.init))
     *(.text .text.*)
   } > FLASH
 
-  /* Константы (только чтение) — тоже во Flash. */
   .rodata : {
     *(.rodata .rodata.*)
     *(.srodata .srodata.*)
   } > FLASH
 
-  /* Неинициализированные данные — в RAM. Для мигалки пусто. */
   .bss (NOLOAD) : {
     *(.bss .bss.* .sbss .sbss.*)
     *(COMMON)
   } > RAM
 
-  /* Отладочный/служебный мусор, который нам не нужен во Flash. */
   /DISCARD/ : {
     *(.eh_frame*)
     *(.comment)

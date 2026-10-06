@@ -5,12 +5,8 @@ use core::panic::PanicInfo;
 use k1921vg1t_pac as pac;
 use riscv_rt::entry;
 
-// ============================================================================
-//  ЦЕРЕМОНИЯ №1 — UART (готовый, из проекта rust_uart). Не трогаем.
-//  Нужен, чтобы печатать измерения в терминал (COM5, 9600 8-N-1).
-// ============================================================================
+// UART0 output, 9600 8N1 from the 27 MHz HSE crystal (same as rust_uart).
 fn uart0_init(p: &pac::Peripherals) {
-    // такт от кварца HSE (27 МГц) — точный
     p.rcu.hsecfg().modify(|_, w| w.en().set_bit());
     for _ in 0..100_000 {
         unsafe { core::arch::asm!("nop") };
@@ -43,7 +39,7 @@ fn uart0_send_str(p: &pac::Peripherals, s: &str) {
     }
 }
 
-// печать числа в десятичном виде (printf у нас нет)
+// Decimal output of a u32 (there is no printf).
 fn uart0_send_u32(p: &pac::Peripherals, mut n: u32) {
     if n == 0 {
         uart0_send_byte(p, b'0');
@@ -62,17 +58,13 @@ fn uart0_send_u32(p: &pac::Peripherals, mut n: u32) {
     }
 }
 
-// ============================================================================
-//  ЦЕРЕМОНИЯ №2 — АЦП + датчик температуры (сложная аналоговая обвязка).
-//  TSENSOR (датчик температуры кристалла) внутри подключён к каналу 63
-//  на аналоговом блоке ADC3. Настраиваем: такт, питание фронтенда, секвенсор.
-// ============================================================================
-const TSENSOR_CH: u8 = 63; // канал АЦП, к которому подключён датчик температуры
+// The on-chip temperature sensor (TSENSOR) is connected to channel 63 of analog block ADC3.
+const TSENSOR_CH: u8 = 63;
 
 fn adc_init(p: &pac::Peripherals) {
-    // --- такт АЦП: источник HSE (тот же кварц, что у UART), включить блок ---
+    // ADC clock: CLKSEL = 1 (SRCCLK = HSE), no divider.
     p.rcu.adccfg().modify(|_, w| unsafe {
-        w.clksel().bits(1); // 1 = HSE
+        w.clksel().bits(1);
         w.diven().clear_bit();
         w.clken().set_bit();
         w.rstdis().set_bit()
@@ -80,57 +72,56 @@ fn adc_init(p: &pac::Peripherals) {
     p.rcu.cgcfgahb().modify(|_, w| w.adcen().set_bit());
     p.rcu.rstdisahb().modify(|_, w| w.adcen().set_bit());
 
-    // --- аналоговый фронтенд блока ADC3 (LDO-питание, разрешение 12 бит) ---
+    // Analog front end of ADC3: internal LDO, 12-bit resolution, no calibration.
     p.adc.actl(3).ctrl().modify(|_, w| {
-        w.adcenldo().set_bit(); // включить внутренний стабилизатор питания
+        w.adcenldo().set_bit();
         w.rangeldo().set_bit();
         w.dislvl().clear_bit();
-        w.selres()._12bit(); // разрешение 12 бит (0..4095)
-        w.calen().clear_bit(); // без калибровки
-        w.adcen().set_bit() // включить сам АЦП
+        w.selres()._12bit();
+        w.calen().clear_bit();
+        w.adcen().set_bit()
     });
     for _ in 0..500 {
-        unsafe { core::arch::asm!("nop") }; // ~20 мкс на раскачку аналога
+        unsafe { core::arch::asm!("nop") }; // let the analog front end settle
     }
     p.adc.actl(3).ctrl().modify(|_, w| w.adcstart().set_bit());
 
-    // --- включить датчик температуры (SCALE влияет на формулу перевода!) ---
+    // Enable the temperature sensor. SCALE = 1 is assumed by the conversion formula below.
     p.siu.tsensctrl().modify(|_, w| {
         w.scale().set_bit();
         w.dis().clear_bit()
     });
 
-    // --- секвенсор 0: одно измерение канала 63 по программному запросу ---
-    p.adc.emux().modify(|_, w| unsafe { w.em0().bits(0) }); // 0 = запуск программой
+    // Sequencer 0: a single software-triggered conversion of channel 63.
+    p.adc.emux().modify(|_, w| unsafe { w.em0().bits(0) });
     p.adc.seq(0).srqsel0().modify(|_, w| unsafe { w.rq0().bits(TSENSOR_CH) });
     p.adc.seq(0).srqctl().modify(|_, w| unsafe {
-        w.rqmax().bits(0); // очередь из 1 запроса
+        w.rqmax().bits(0); // queue of one request
         w.qavgen().clear_bit()
     });
-    // доп. задержка на канале — датчику температуры нужно время «подключиться»
+    // Extra channel delay: the temperature sensor needs settling time.
     p.adc.chdelay(TSENSOR_CH as usize).value().write(|w| unsafe { w.delay().bits(2700) });
 
-    // --- включить секвенсор 0 ---
     p.adc.seqsync().modify(|_, w| w.sync0().set_bit());
     p.adc.seqen().modify(|_, w| w.seqen0().set_bit());
 
-    // --- дождаться, пока АЦП завершит внутреннюю инициализацию ---
     while p.adc.actl(3).ctrl().read().adcrdy().bit_is_clear() {}
 }
 
-// Запустить одно измерение TSENSOR и вернуть сырое значение АЦП (0..4095).
+// One TSENSOR conversion; returns the raw 12-bit ADC value.
 fn adc_read_tsensor(p: &pac::Peripherals) -> u16 {
-    // запустить одно преобразование (GSYNC запускает секвенсоры с установленным SYNC)
+    // GSYNC starts all sequencers that have SYNC set.
     p.adc.seqsync().modify(|_, w| w.gsync().set_bit());
-    // ждать, пока в FIFO секвенсора появится результат (SFLOAD = число слов в буфере)
+    // Poll the FIFO fill level (SFLOAD). In testing, polling the SEQRIS0 flag instead
+    // hung on the second conversion.
     while p.adc.seq(0).sfload().read().val().bits() == 0 {}
-    // прочитать результат — чтение опустошает ячейку FIFO
-    p.adc.seq(0).sfifo().read().data().bits()
+    p.adc.seq(0).sfifo().read().data().bits() // reading pops the value from the FIFO
 }
 
+// Temperature in tenths of a degree Celsius (valid for TSENSOR SCALE = 1).
 fn raw_to_temp_x10(raw: u16) -> i32 {
-    let v_mv = raw as i32 * 3300 / 4096;   // напряжение датчика в милливольтах
-    574713 * (793 - v_mv) / 100000         // температура в десятых долях градуса
+    let v_mv = raw as i32 * 3300 / 4096;
+    574713 * (793 - v_mv) / 100000
 }
 
 #[entry]
@@ -138,15 +129,15 @@ fn main() -> ! {
     let p = unsafe { pac::Peripherals::steal() };
     uart0_init(&p);
     adc_init(&p);
-    
+
     loop {
         let raw = adc_read_tsensor(&p);
-        let t10 = raw_to_temp_x10(raw);        // температура ×10
+        let t10 = raw_to_temp_x10(raw);
 
         uart0_send_str(&p, "T = ");
-        uart0_send_u32(&p, (t10 / 10) as u32); // целые градусы
+        uart0_send_u32(&p, (t10 / 10) as u32);
         uart0_send_str(&p, ".");
-        uart0_send_u32(&p, (t10 % 10) as u32); // десятая доля
+        uart0_send_u32(&p, (t10 % 10) as u32);
         uart0_send_str(&p, " C\r\n");
 
         for _ in 0..3_000_000 { unsafe { core::arch::asm!("nop") } }

@@ -1,13 +1,11 @@
-# Cargo.toml — мигалка на PAC (типобезопасный доступ к регистрам)
+# Step 3: the same blink through the generated PAC (named registers instead of raw addresses).
 [package]
 name = "rust_blink_pac"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# рантайм (startup + линкер), как в rust_blink_rt
 riscv-rt = { version = "0.18.0", features = ["memory", "single-hart"] }
-# НАШ сгенерированный PAC — подключаем по локальному пути (path dependency)
 k1921vg1t-pac = { path = "../k1921vg1t-pac" }
 
 [profile.dev]

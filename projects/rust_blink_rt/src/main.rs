@@ -5,25 +5,23 @@ use riscv_rt::entry;
 use core::ptr::write_volatile;
 use core::panic::PanicInfo;
 
-// --- Адреса регистров (из SVD: base + offset) -------------------------------
-const RCU_CGCFGAHB:   *mut u32 = 0x5000_4000 as *mut u32; // такт периферии AHB
-const RCU_RSTDISAHB:  *mut u32 = 0x5000_4010 as *mut u32; // снятие сброса AHB
-const GPIOC_OUTENSET: *mut u32 = 0x4000_202C as *mut u32; // линии в выход
-const GPIOC_DATAOUT:  *mut u32 = 0x4000_2004 as *mut u32; // значение на выход
+// Register addresses (base + offset from the SVD).
+const RCU_CGCFGAHB:   *mut u32 = 0x5000_4000 as *mut u32; // AHB peripheral clock enable
+const RCU_RSTDISAHB:  *mut u32 = 0x5000_4010 as *mut u32; // AHB peripheral reset release
+const GPIOC_OUTENSET: *mut u32 = 0x4000_202C as *mut u32; // set pins as outputs
+const GPIOC_DATAOUT:  *mut u32 = 0x4000_2004 as *mut u32; // output data
 
-const GPIOCEN: u32 = 1 << 2;    // бит порта C в регистрах RCU
+const GPIOCEN: u32 = 1 << 2;    // GPIOC bit in the RCU registers
 const LEDS:    u32 = 0xF000;    // C12..C15
-const LED1:    u32 = 1 << 12;   // C12 (active-high: 1 зажигает)
+const LED1:    u32 = 1 << 12;   // C12; the LEDs are active-high (verified on this
+                                // board; the SDK BSP assumes active-low)
 
 #[entry]
 fn main() -> ! {
     unsafe {
-        // Прямая запись в регистры. unsafe — потому что Rust не может проверить,
-        // что за этими "сырыми" адресами реально есть железо (см. пояснение).
-        write_volatile(RCU_CGCFGAHB,  GPIOCEN);   // такт на порт C
-        write_volatile(RCU_RSTDISAHB, GPIOCEN);   // снять сброс с порта C
-        write_volatile(GPIOC_OUTENSET, LEDS);     // C12..C15 -> выход
-        // write_volatile(GPIOC_DATAOUT,  LED1);     // зажечь LED1
+        write_volatile(RCU_CGCFGAHB,  GPIOCEN);
+        write_volatile(RCU_RSTDISAHB, GPIOCEN);
+        write_volatile(GPIOC_OUTENSET, LEDS);
 
         loop {
             write_volatile(GPIOC_DATAOUT, LED1);

@@ -5,10 +5,8 @@ use core::panic::PanicInfo;
 use k1921vg1t_pac as pac;
 use riscv_rt::entry;
 
-// ============================================================================
-//  ЦЕРЕМОНИЯ №1 — UART (тактируется от HSE, поэтому PLL на него не влияет:
-//  вывод продолжает работать на 9600 даже после разгона ядра).
-// ============================================================================
+// UART0 output, 9600 8N1. The UART is clocked from the 27 MHz HSE crystal, so switching
+// the core to the PLL does not change the baud rate.
 fn uart0_init(p: &pac::Peripherals) {
     p.rcu.hsecfg().modify(|_, w| w.en().set_bit());
     for _ in 0..100_000 {
@@ -60,10 +58,8 @@ fn uart0_send_u32(p: &pac::Peripherals, mut n: u32) {
     }
 }
 
-// ============================================================================
-//  ИЗМЕРЕНИЕ SYSCLK — TMR0 считает такты ядра, а эталон времени задаёт
-//  передача N байт по UART (UART на точном HSE). Как ловили HSI.
-// ============================================================================
+// System clock self-measurement: TMR0 counts system clock ticks while N bytes are sent
+// over the HSE-clocked UART; the transfer takes exactly N * 10 / 9600 s.
 fn tmr0_counter_start(p: &pac::Peripherals) {
     p.rcu.cgcfgapb1().modify(|_, w| w.tmr0en().set_bit());
     p.rcu.rstdisapb1().modify(|_, w| w.tmr0en().set_bit());
@@ -84,52 +80,55 @@ fn measure_sysclk(p: &pac::Peripherals) -> u32 {
     (ticks * 9600 / (N as u64 * 10)) as u32
 }
 
-// ============================================================================
-//  ЦЕРЕМОНИЯ №2 — РАЗГОН через PLL0. Рецепт НИИЭТ: 27 МГц HSE → 204 МГц.
-//  ОПАСНО: неверная настройка -> зависание. Порядок важен.
-// ============================================================================
+// Switch the system clock to PLL0 using the NIIET SDK settings for a 27 MHz HSE
+// (system_k1921vg1t.c). The SDK comment says "FOUT = 204 000 000 Hz", but by the SDK's
+// own formula F = HSE * NDIV / ((RDIV + 1) * (DIV1A + 1) * (DIV1B + 1)) (PREDIV is not
+// used with VCOMODE = 1) they give 27 MHz * 100 / (3 * 2 * 3) = 150 MHz;
+// about 150.9 MHz was measured.
+// Wrong settings hang the chip; the order of the steps matters.
 fn pll_init(p: &pac::Peripherals) {
-    // 1. кварц HSE (источник для PLL) должен работать
+    // 1. The PLL reference (HSE) must be running.
     p.rcu.hsecfg().modify(|_, w| w.en().set_bit());
     for _ in 0..100_000 {
         unsafe { core::arch::asm!("nop") };
     }
 
-    // 2. коэффициенты PLL0 (делители/множитель) — рецепт НИИЭТ для 27 МГц
+    // 2. Dividers and multiplier. write_with_zero(): the reset values are not used.
     unsafe {
         p.rcu.pll(0).div().write_with_zero(|w| {
             w.div1a().bits(1);
             w.div1b().bits(2);
             w.prediv().bits(1);
-            w.nnclr().set_bit(); // включить N-делитель
-            w.rnclr().set_bit(); // включить R-делитель
+            w.nnclr().set_bit(); // enable the N divider
+            w.rnclr().set_bit(); // enable the R divider
             w.rdiv().bits(2);
-            w.ndiv().bits(100) // множитель
+            w.ndiv().bits(100)
         });
     }
     p.rcu.pll(0).mod_().write(|w| unsafe { w.mod_().bits(1) });
     p.rcu.pll(0).frac().write(|w| unsafe { w.frac().bits(1) });
+    // The reset value of CFG has PD (power-down) = 1; write_with_zero() clears it,
+    // a plain write() would keep it and the PLL would never start.
     unsafe {
         p.rcu.pll(0).cfg().write_with_zero(|w| {
-            w.fouten().set_bit(); // разрешить выход
-            w.pfd().bits(3); // рабочий режим ЧФД
-            w.clksel().clear_bit(); // 0 = источник HSE
+            w.fouten().set_bit(); // output enable
+            w.pfd().bits(3);
+            w.clksel().clear_bit(); // 0 = HSE
             w.vcomode().bits(1);
             w.cp().bits(9);
-            w.st().bits(0) // целочисленный делитель
+            w.st().bits(0) // integer divider
         });
     }
 
-    // 3. дать PLL время на захват частоты (обычно << мс; ~30 мс с запасом на HSI)
+    // 3. Give the PLL time to lock.
     for _ in 0..100_000 {
         unsafe { core::arch::asm!("nop") };
     }
 
-    // 4. ВАЖНО: увеличить задержку доступа к Flash — на 204 МГц флеш «не успевает»
-    //    за ядром, без этого чтение инструкций сломается и чип зависнет.
+    // 4. Increase the flash latency before raising the clock (the SDK sets LAT = 2 too).
     p.flashm.ctrl().modify(|_, w| unsafe { w.lat().bits(2) });
 
-    // 5. переключить системный такт на PLL0 (src = 2)
+    // 5. Switch the system clock to PLL0 (SRC = 2) and wait for the switch.
     p.rcu.sysclkcfg().write(|w| unsafe { w.src().bits(2) });
     while p.rcu.clkstat().read().src().bits() != 2 {}
 }
@@ -140,16 +139,14 @@ fn main() -> ! {
     uart0_init(&p);
     tmr0_counter_start(&p);
 
-    // измерить частоту ДО разгона (сейчас ядро на HSI ~3.4 МГц)
+    // Before: the core runs from HSI after reset.
     uart0_send_str(&p, "\r\nBefore PLL: ");
     let before = measure_sysclk(&p);
     uart0_send_u32(&p, before);
     uart0_send_str(&p, " Hz\r\n");
 
-      // РАЗОГНАТЬ через PLL (27 -> 204 МГц)
     pll_init(&p);
 
-      // измерить ПОСЛЕ
     uart0_send_str(&p, "After PLL:  ");
     let after = measure_sysclk(&p);
     uart0_send_u32(&p, after);

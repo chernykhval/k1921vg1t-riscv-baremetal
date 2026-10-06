@@ -1,13 +1,12 @@
-# Cargo.toml — аппаратное шифрование ГОСТ «Кузнечик» на блоке CRYPTO
+# Step 8: hardware GOST Kuznyechik encryption with the CRYPTO block, checked against the
+# GOST R 34.12-2015 test vector.
 [package]
 name = "rust_crypto"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# рантайм (startup + линкер), как в rust_blink_rt
 riscv-rt = { version = "0.18.0", features = ["memory", "single-hart"] }
-# НАШ сгенерированный PAC — подключаем по локальному пути (path dependency)
 k1921vg1t-pac = { path = "../k1921vg1t-pac" }
 
 [profile.dev]
