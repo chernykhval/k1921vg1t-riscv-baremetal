@@ -1,0 +1,68 @@
+# Build and flash helpers for the Rust examples (https://taskfile.dev, Task v3.38 or newer).
+# Run from the repository root:
+#   task run   P=rust_uart     # build and flash
+#   task build P=rust_pll      # build only
+#   task flash P=rust_dac      # flash an already built project
+#   task scan                  # check the JTAG connection
+#
+# Flashing requires the NIIET build of OpenOCD (flash driver "k1921vg1t").
+# If it is not on PATH, pass its location:  task flash P=rust_uart OPENOCD=<path>/openocd.exe
+# After flashing press the RESET button (SB2) on the board: reset_config is "none".
+# Commands run from the repository root, so all paths below are relative to it.
+
+version: '3'
+
+vars:
+  OPENOCD: openocd
+  SCRIPTS: openocd
+  TARGET: riscv32imac-unknown-none-elf
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - '{{.TASK_EXE}} --list'
+
+  build:
+    desc: 'Build a Rust project. Example: task build P=rust_uart'
+    requires:
+      vars: [P]
+    preconditions:
+      - sh: test -f Cargo.toml
+        msg: 'projects/{{.P}} is not a Rust project (C projects are built with make)'
+    dir: 'projects/{{.P}}'
+    cmds:
+      - cargo build --release
+
+  flash:
+    desc: 'Flash a built Rust project. Example: task flash P=rust_uart'
+    requires:
+      vars: [P]
+    vars:
+      ELF: 'projects/{{.P}}/target/{{.TARGET}}/release/{{.P}}'
+    preconditions:
+      - sh: test -f {{.ELF}}
+        msg: '{{.ELF}} not found, run "task build P={{.P}}" first'
+    cmds:
+      - '"{{.OPENOCD}}" -s "{{.SCRIPTS}}" -f connect_ft2232_jtag.cfg -c "halt" -c "flash write_image erase {{.ELF}}" -c "verify_image {{.ELF}}" -c "shutdown"'
+
+  run:
+    desc: 'Build and flash. Example: task run P=rust_uart'
+    requires:
+      vars: [P]
+    cmds:
+      - task: build
+        vars: { P: '{{.P}}' }
+      - task: flash
+        vars: { P: '{{.P}}' }
+
+  scan:
+    desc: Check the JTAG connection to the chip (no flashing)
+    cmds:
+      - '"{{.OPENOCD}}" -s "{{.SCRIPTS}}" -f ft2232hl_board.cfg -f k1921vg1t_singlecore_dev.cfg -c "init" -c "shutdown"'
+
+  erase:
+    desc: Erase the whole main flash (recovery)
+    cmds:
+      - '"{{.OPENOCD}}" -s "{{.SCRIPTS}}" -f connect_ft2232_jtag.cfg -c "halt" -c "k1921vg1t erase main 0 2047" -c "shutdown"'
+
