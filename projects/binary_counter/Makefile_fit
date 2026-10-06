@@ -1,31 +1,30 @@
 #==============================================================================
-# Makefile_fit: МИНИМАЛЬНАЯ сборка binary_counter
+# Makefile_fit: minimal build of binary_counter for K1921VG1T (NIIET-DEV-K1921VG1T)
 #------------------------------------------------------------------------------
-# В отличие от основного Makefile (берёт все файлы SDK через wildcard и
-# полагается на --gc-sections), здесь список исходников задан ЯВНО.
-# Цель — оставить только то, что реально нужно счётчику.
+# Same as Makefile, but with an explicit source list instead of wildcard +
+# --gc-sections. The list was found by starting from startup + main and adding
+# the file that defines each symbol the linker reported as "undefined".
 #
-# Метод подбора: начать с минимума (startup + main), собрать, и по ошибкам
-# линкера "undefined reference to ..." добавлять ровно тот файл, где символ
-# определён. Так линкер сам показывает граф зависимостей по СИМВОЛАМ
-# (make отслеживает только даты файлов, а не символы).
-#
-# Сборка:  make -f Makefile_fit
-# Очистка: make -f Makefile_fit clean
+# Build: make -f Makefile_fit   Clean: make -f Makefile_fit clean
+# Toolchain and SDK locations can be overridden on the command line or via
+# environment variables:
+#   make COMPILER_PATH=<path-to-gcc-bin>/ SDK_DIR=<path-to-k1921vg1t_sdk>
 #==============================================================================
 
 TARGET_NAME = binary_counter
 
-#--- Тулчейн ------------------------------------------------------------------
-COMPILER_PATH = C:/niiet/toolchain/xpack-riscv-none-elf-gcc-13.4.0-1/bin/
+#--- Toolchain ----------------------------------------------------------------
+# Empty COMPILER_PATH: riscv-none-elf-gcc is taken from PATH.
+COMPILER_PATH ?=
 CROSS   = $(COMPILER_PATH)riscv-none-elf-
 CC      = $(CROSS)gcc
 OBJCOPY = $(CROSS)objcopy
 OBJDUMP = $(CROSS)objdump
 SIZE    = $(CROSS)size
 
-#--- Пути к SDK ---------------------------------------------------------------
-SDK_DIR   = ../../../k1921vg1t_sdk
+#--- SDK paths ----------------------------------------------------------------
+# Default: k1921vg1t_sdk cloned next to this repository.
+SDK_DIR   ?= ../../../k1921vg1t_sdk
 DEV_DIR   = $(SDK_DIR)/platform/Device/K1921VG1T
 APP_DIR   = ./app
 RETGT_DIR = $(SDK_DIR)/platform/retarget/Template/K1921VG1T
@@ -33,8 +32,8 @@ BSP_DIR   = $(SDK_DIR)/hardware/bsp/NIIET-DEV-K1921VG1T
 
 BUILD_DIR = build_fit
 
-#--- Исходники (ЯВНЫЙ список — стартовый минимум) -----------------------------
-# Начинаем с двух файлов. Линкер подскажет, чего не хватает.
+#--- Sources ------------------------------------------------------------------
+# Explicit minimal source list.
 CSRC = $(APP_DIR)/main.c \
        $(DEV_DIR)/source/sys_init.c
 ASRC = $(DEV_DIR)/source/startup_k1921vg1t.S
@@ -42,12 +41,14 @@ ASRC = $(DEV_DIR)/source/startup_k1921vg1t.S
 OBJS  = $(addprefix $(BUILD_DIR)/,$(notdir $(CSRC:.c=.o)) $(notdir $(ASRC:.S=.o)))
 VPATH = $(APP_DIR) $(DEV_DIR)/source $(RETGT_DIR) $(BSP_DIR)
 
-#--- Флаги (те же, что в основном Makefile) -----------------------------------
+#--- Flags --------------------------------------------------------------------
 MARCH   = rv32imafdc_zicsr_zifencei
 MABI    = ilp32d
+# HSECLK_VAL: the board crystal (BQ2) is 27 MHz.
 DEFINES = -DUSE_LIBC -DSYSCLK_HSE -DCKO_NONE -DHSECLK_VAL=27000000
 INCS    = -I$(DEV_DIR)/Include -I$(RETGT_DIR) -I$(BSP_DIR)
 
+# Flash image; use k1921vg1t_ram.ld to run from RAM.
 LDSCRIPT = $(DEV_DIR)/ldscripts/k1921vg1t_flash.ld
 
 CFLAGS  = -march=$(MARCH) -mabi=$(MABI) -Og -g -Wall -std=gnu99 \
@@ -55,6 +56,8 @@ CFLAGS  = -march=$(MARCH) -mabi=$(MABI) -Og -g -Wall -std=gnu99 \
 
 ASFLAGS = -march=$(MARCH) -mabi=$(MABI) -g $(DEFINES) $(INCS)
 
+# -nostartfiles: the SDK startup_k1921vg1t.S replaces crt0.
+# -L ldscripts:  k1921vg1t_flash.ld includes k1921vg1t_common.lds.
 LDFLAGS = -march=$(MARCH) -mabi=$(MABI) -nostartfiles \
           -T $(LDSCRIPT) -L$(DEV_DIR)/ldscripts \
           -Wl,--gc-sections -Wl,-Map=$(BUILD_DIR)/$(TARGET_NAME).map
@@ -63,7 +66,7 @@ ELF = $(BUILD_DIR)/$(TARGET_NAME).elf
 HEX = $(BUILD_DIR)/$(TARGET_NAME).hex
 LST = $(BUILD_DIR)/$(TARGET_NAME).lst
 
-#--- Правила ------------------------------------------------------------------
+#--- Rules --------------------------------------------------------------------
 all: $(ELF) $(HEX) $(LST) size
 
 $(BUILD_DIR):
