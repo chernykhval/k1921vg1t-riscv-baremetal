@@ -1,0 +1,7 @@
+# Store all files byte-for-byte: no line-ending conversion on checkout/commit.
+# The repository intentionally keeps the original line endings of every file
+# (generated PAC sources use CRLF, the rest use LF).
+* -text
+
+# Report sources (typst) are always LF.
+*.typ text eol=lf
