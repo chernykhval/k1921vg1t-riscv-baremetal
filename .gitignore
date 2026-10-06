@@ -1,8 +1,4 @@
-# ============================================================
-#  К1921ВГ1Т bare-metal (DEVBOARDS) — .gitignore
-# ============================================================
-
-# --- Артефакты сборки C / RISC-V ---
+# Build artifacts (C / RISC-V)
 *.o
 *.d
 *.elf
@@ -13,8 +9,7 @@
 *.siz
 *.axf
 
-# --- Каталоги сборки ---
-# Rust / cargo (корень и вложенные проекты)
+# Build directories (Rust/cargo and Makefile projects)
 /target/
 **/target/
 **/Debug/
@@ -23,8 +18,17 @@
 **/build_fit/
 **/obj/
 
-# --- Мусор ОС / редакторов ---
+# OS / editor files
 Thumbs.db
 Desktop.ini
 *.log
 .vscode/
+
+# Private working material (never published)
+/reports/
+/notes/
+*.bundle
+
+# PDFs are not tracked except the final research report
+*.pdf
+!docs/k1921vg1t-rust-baremetal-report.pdf
