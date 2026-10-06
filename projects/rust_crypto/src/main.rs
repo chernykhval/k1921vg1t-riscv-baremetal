@@ -127,9 +127,9 @@ fn main() -> ! {
     print_block(&p, "Expected:   ", &expected);
 
     if cipher == expected {
-        uart0_send_str(&p, "MATCH: sovpalo s GOST test-vector\r\n");
+        uart0_send_str(&p, "MATCH: ciphertext equals the GOST test vector\r\n");
     } else {
-        uart0_send_str(&p, "MISMATCH: ne sovpalo s GOST\r\n");
+        uart0_send_str(&p, "MISMATCH: ciphertext differs from the GOST test vector\r\n");
     }
 
     let decrypted = crypto_process(&p, KUZNECHIK, true, &key, &cipher);
