@@ -44,7 +44,7 @@ VPATH = $(APP_DIR) $(DEV_DIR)/source $(RETGT_DIR) $(BSP_DIR)
 #--- Флаги (источник: niiet_aspect.json проекта run_leds) ----------------------
 MARCH   = rv32imafdc_zicsr_zifencei
 MABI    = ilp32d
-DEFINES = -DUSE_LIBC -DSYSCLK_HSE -DCKO_NONE -DHSECLK_VAL=16000000
+DEFINES = -DUSE_LIBC -DSYSCLK_HSE -DCKO_NONE -DHSECLK_VAL=27000000
 INCS    = -I$(DEV_DIR)/Include -I$(RETGT_DIR) -I$(BSP_DIR)
 
 # Прошивка во Flash. Для запуска из ОЗУ заменить на k1921vg1t_ram.ld

@@ -41,7 +41,7 @@ VPATH = $(APP_DIR) $(DEV_DIR)/source $(RETGT_DIR) $(BSP_DIR)
 #--- Флаги --------------------------------------------------------------------
 MARCH   = rv32imafdc_zicsr_zifencei
 MABI    = ilp32d
-DEFINES = -DUSE_LIBC -DSYSCLK_HSE -DCKO_NONE -DHSECLK_VAL=16000000
+DEFINES = -DUSE_LIBC -DSYSCLK_HSE -DCKO_NONE -DHSECLK_VAL=27000000
 INCS    = -I$(DEV_DIR)/Include -I$(RETGT_DIR) -I$(BSP_DIR)
 
 LDSCRIPT = $(DEV_DIR)/ldscripts/k1921vg1t_flash.ld
