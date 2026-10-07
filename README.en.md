@@ -2,6 +2,8 @@
 
 [Русская версия](README.md) — the Russian version is the primary one; this is a translation.
 
+[![build](https://github.com/chernykhval/k1921vg1t-riscv-baremetal/actions/workflows/build.yml/badge.svg)](https://github.com/chernykhval/k1921vg1t-riscv-baremetal/actions/workflows/build.yml)
+
 Bare-metal example programs for the K1921VG1T microcontroller (JSC "NIIET", RISC-V SCR5 core,
 RV32IMAFDCP) in C and in Rust (`no_std`), a Rust peripheral access crate (PAC) generated from the
 vendor's SVD description after fixing it, and an analysis of the defects found in that description.

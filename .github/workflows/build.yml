@@ -1,0 +1,80 @@
+# Builds the PAC and all Rust examples, and checks that the PAC is reproducible from the SVD,
+# on Linux and on Windows.
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  rust:
+    name: Build PAC and Rust examples (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the toolchain from rust-toolchain.toml
+        run: |
+          rustup toolchain install
+          rustc --version
+
+      - name: Build the PAC (with and without the rt feature)
+        working-directory: projects/k1921vg1t-pac
+        run: |
+          cargo build --locked --release --target riscv32imac-unknown-none-elf
+          cargo build --locked --release --target riscv32imac-unknown-none-elf --features rt
+
+      - name: Build the examples
+        run: |
+          for p in rust_blink rust_blink_rt rust_blink_pac rust_timer_irq rust_uart \
+                   rust_adc rust_dac rust_crypto rust_pll; do
+            echo "::group::$p"
+            (cd "projects/$p" && cargo build --locked --release)
+            echo "::endgroup::"
+          done
+
+  pac-reproducible:
+    name: Regenerate the PAC from the SVD and compare (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the toolchain from rust-toolchain.toml
+        run: |
+          rustup toolchain install
+          rustfmt --version
+
+      - name: Install svd2rust 0.37.1 and form 0.13.0
+        run: |
+          cargo install svd2rust --version 0.37.1 --locked
+          cargo install form --version 0.13.0 --locked
+
+      # Generated inside the repository (target/ is git-ignored) so that rust-toolchain.toml,
+      # and therefore the pinned rustfmt version, applies.
+      - name: Regenerate (commands from SVD_FIXES.md)
+        run: |
+          mkdir -p target/pac-regen
+          cd target/pac-regen
+          svd2rust --target riscv -i ../../projects/k1921vg1t-pac/K1921VG1T.patched.svd
+          form -i lib.rs -o src/ && rm lib.rs
+          rustfmt --edition 2021 --config newline_style=Unix src/lib.rs build.rs
+
+      - name: Compare with the repository
+        run: |
+          diff -r target/pac-regen/src projects/k1921vg1t-pac/src
+          cmp target/pac-regen/build.rs projects/k1921vg1t-pac/build.rs
+          cmp target/pac-regen/device.x projects/k1921vg1t-pac/device.x
+          echo "Generated PAC is byte-identical to the repository"

@@ -2,6 +2,8 @@
 
 [English version](README.en.md)
 
+[![build](https://github.com/chernykhval/k1921vg1t-riscv-baremetal/actions/workflows/build.yml/badge.svg)](https://github.com/chernykhval/k1921vg1t-riscv-baremetal/actions/workflows/build.yml)
+
 Примеры bare-metal программ для микроконтроллера К1921ВГ1Т (АО «НИИЭТ», ядро RISC-V SCR5,
 RV32IMAFDCP) на C и на Rust (`no_std`), Rust-крейт доступа к периферии (PAC), сгенерированный из
 исправленного SVD-описания производителя, и разбор найденных в этом описании дефектов.
