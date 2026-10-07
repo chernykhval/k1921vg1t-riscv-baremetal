@@ -284,6 +284,18 @@ BE LIABLE").
   this work. It does not reach the generated code.
 - The remaining `<cpu>` fields and the description are unchanged.
 
+## Fixes in later versions of the vendor SDK
+
+In `k1921vg1t_sdk` the SVD file has not changed since commit `9fa40f85be5b` (checked at commit
+`44510f7ad5e8`).
+
+In the vendor's new SDK [riscv_cmake_sdk](https://gitflic.ru/project/niiet/riscv_cmake_sdk)
+(file `tools/svd/K1921VG1T.svd`, checked at commit `ae5a8e69dfe0`) some of the described defects are
+fixed: it has no defects of classes 1–5, the WDT block size is `0xc04` (item 9), the MCP4921 register
+is removed from DAC0 (item 10), and the USB0, USB1 and PWMxTZ interrupts are added (item 11). Classes
+6–8, the TMR0 block size `0x130`, the missing FLASH and L2_ERROR interrupts, and items 12–14 remain.
+svd2rust does not accept this file: generation stops at the class 6 error.
+
 ## How it was checked
 
 1. **Necessity of group A fixes.** For each of the 8 classes, an SVD with only that class reverted was
