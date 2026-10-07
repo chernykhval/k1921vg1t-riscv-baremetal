@@ -1,0 +1,22 @@
+# Bibliography (Hayagriva). Rendered with the built-in GOST R 7.0.5-2008 style.
+# Titles are copied from the pages themselves.
+k1921vg1t-sdk:
+  type: Repository
+  title: "niiet/k1921vg1t_sdk: Набор средств разработки"
+  author: АО «НИИЭТ»
+  url: https://gitflic.ru/project/niiet/k1921vg1t_sdk
+
+svd2rust:
+  type: Repository
+  title: "rust-embedded/svd2rust: Generate Rust register maps (structs) from SVD files"
+  url: https://github.com/rust-embedded/svd2rust
+
+cmsis-svd:
+  type: Web
+  title: "Open-CMSIS-SVD: System View Description"
+  url: https://open-cmsis-pack.github.io/svd-spec/main/index.html
+
+cc-by:
+  type: Web
+  title: "С указанием авторства версии 4.0 Международная — юридический текст"
+  url: https://creativecommons.org/licenses/by/4.0/legalcode.ru
