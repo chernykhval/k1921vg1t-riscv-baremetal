@@ -74,7 +74,7 @@ XP7 pin 1 (+3.3 V) is not connected to the adapter.
 
 | What | Where | Tested with |
 |---|---|---|
-| Rust | [rustup](https://rustup.rs/), target `riscv32imac-unknown-none-elf` | 1.97.1 |
+| Rust | [rustup](https://rustup.rs/); version and target pinned in `rust-toolchain.toml` | 1.97.1 |
 | NIIET OpenOCD | [gitflic.ru/project/niiet/openocd](https://gitflic.ru/project/niiet/openocd) (sources and releases) | `-00247-g90632ca40-dirty (2025-08-01-14:40)` |
 | Task (optional) | [taskfile.dev](https://taskfile.dev/) | 3.54.0 (3.38 or newer required) |
 | For C: NIIET SDK | [gitflic.ru/project/niiet/k1921vg1t_sdk](https://gitflic.ru/project/niiet/k1921vg1t_sdk) | commit `9fa40f85be5b` |
@@ -89,11 +89,9 @@ Documentation on the microcontroller (user manual, errata, in Russian) is in the
 
 Run the commands from the repository root.
 
-1. Install Rust and the target:
-
-   ```sh
-   rustup target add riscv32imac-unknown-none-elf
-   ```
+1. Install [rustup](https://rustup.rs/). The required Rust version (1.97.1), the
+   `riscv32imac-unknown-none-elf` target and rustfmt are listed in [`rust-toolchain.toml`](rust-toolchain.toml);
+   rustup installs them by itself the first time `cargo` runs in the repository.
 
 2. Connect the adapter and the board, power on. Check the connection to the chip:
 

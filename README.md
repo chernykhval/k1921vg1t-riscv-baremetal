@@ -73,7 +73,7 @@ RV32IMAFDCP) на C и на Rust (`no_std`), Rust-крейт доступа к �
 
 | Что | Где взять | Проверено с версией |
 |---|---|---|
-| Rust | [rustup](https://rustup.rs/), цель `riscv32imac-unknown-none-elf` | 1.97.1 |
+| Rust | [rustup](https://rustup.rs/); версия и цель закреплены в `rust-toolchain.toml` | 1.97.1 |
 | OpenOCD НИИЭТ | [gitflic.ru/project/niiet/openocd](https://gitflic.ru/project/niiet/openocd) (исходники и релизы) | `-00247-g90632ca40-dirty (2025-08-01-14:40)` |
 | Task (необязательно) | [taskfile.dev](https://taskfile.dev/) | 3.54.0 (нужна 3.38 или новее) |
 | Для C: SDK НИИЭТ | [gitflic.ru/project/niiet/k1921vg1t_sdk](https://gitflic.ru/project/niiet/k1921vg1t_sdk) | коммит `9fa40f85be5b` |
@@ -88,11 +88,9 @@ RV32IMAFDCP) на C и на Rust (`no_std`), Rust-крейт доступа к �
 
 Команды выполняются из корня репозитория.
 
-1. Установить Rust и цель:
-
-   ```sh
-   rustup target add riscv32imac-unknown-none-elf
-   ```
+1. Установить [rustup](https://rustup.rs/). Нужная версия Rust (1.97.1), цель
+   `riscv32imac-unknown-none-elf` и rustfmt указаны в файле [`rust-toolchain.toml`](rust-toolchain.toml);
+   rustup устанавливает их сам при первом запуске `cargo` в репозитории.
 
 2. Подключить адаптер и плату, включить питание. Проверить связь с чипом:
 

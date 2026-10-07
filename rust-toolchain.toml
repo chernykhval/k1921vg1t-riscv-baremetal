@@ -1,0 +1,7 @@
+# Rust toolchain used to build and test this repository (picked up by rustup automatically).
+# rustfmt is part of the PAC regeneration procedure (projects/k1921vg1t-pac/SVD_FIXES.md).
+[toolchain]
+channel = "1.97.1"
+profile = "minimal"
+components = ["rustfmt"]
+targets = ["riscv32imac-unknown-none-elf"]
