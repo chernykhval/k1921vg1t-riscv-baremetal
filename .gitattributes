@@ -1,6 +1,6 @@
 # Store all files byte-for-byte: no line-ending conversion on checkout/commit.
-# The repository intentionally keeps the original line endings of every file
-# (generated PAC sources use CRLF, the rest use LF).
+# All files use LF; the generated PAC sources are produced with rustfmt
+# newline_style=Unix, so a regeneration is byte-identical on any OS.
 * -text
 
 # Report sources (typst) are always LF.
