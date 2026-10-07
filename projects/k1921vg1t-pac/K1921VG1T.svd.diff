@@ -1,0 +1,437 @@
+--- a/tools/svd/K1921VG1T.svd
++++ b/projects/k1921vg1t-pac/K1921VG1T.patched.svd
+@@ -4,7 +4,7 @@
+   <!-- device vendor name -->
+   <name>K1921VG1T</name>
+   <!-- name of part -->
+-  <series>K1921VKx</series>
++  <series>K1921VGx</series>
+   <!-- device series the device belongs to -->
+   <version>2.8</version>
+   <!-- version of this description, adding CMSIS-SVD 1.1 tags -->
+@@ -19,12 +19,12 @@
+     </licenseText>
+   <cpu>
+     <!-- details about the cpu embedded in the device -->
+-    <name>CM4</name>
++    <name>other</name>
+     <revision>r0p1</revision>
+-    <endian>Endian.LITTLE</endian>
++    <endian>little</endian>
+     <mpuPresent>true</mpuPresent>
+     <fpuPresent>true</fpuPresent>
+-    <nvicPrioBits />
++    <nvicPrioBits>4</nvicPrioBits>
+     <vendorSystickConfig>false</vendorSystickConfig>
+   </cpu>
+   <addressUnitBits>8</addressUnitBits>
+@@ -3877,7 +3877,7 @@
+           <description>MASKLB</description>
+           <addressOffset>0x400</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Mask register low byte of port</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -3906,7 +3906,7 @@
+           <description>MASKHB</description>
+           <addressOffset>0x800</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Mask register High byte of port</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -5317,7 +5317,7 @@
+           <description>MESSAGE</description>
+           <addressOffset>0xc0</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>CAN Data Message Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -5649,7 +5649,7 @@
+           <description>LIST</description>
+           <addressOffset>0x100</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Register list0</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -5699,7 +5699,7 @@
+           <description>MSPND</description>
+           <addressOffset>0x140</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Register waiting interrupts0</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -5728,7 +5728,7 @@
+           <description>MSID</description>
+           <addressOffset>0x180</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Register messages index0</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -6229,7 +6229,7 @@
+             <name>Reserved</name>
+             <description />
+             <addressOffset>0xfc</addressOffset>
+-            <size>0</size>
++            <size>32</size>
+             <access>read-write</access>
+             <resetValue>0x0</resetValue>
+             <resetMask>0xFFFFFFFF</resetMask>
+@@ -9923,7 +9923,7 @@
+             <description>Sequencer ADC interrupt and restart counter current value register</description>
+             <addressOffset>0x28</addressOffset>
+             <size>32</size>
+-            <access>write-only</access>
++            <access>read-write</access>
+             <resetValue>0x0</resetValue>
+             <resetMask>0xFFFFFFFF</resetMask>
+             <fields>
+@@ -10412,7 +10412,7 @@
+           <description>ACTL</description>
+           <addressOffset>0x540</addressOffset>
+           <register>
+-            <name>ACTL</name>
++            <name>CTRL</name>
+             <description>ADC module control register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -10537,7 +10537,7 @@
+             </fields>
+           </register>
+           <register>
+-            <name>&lt;&gt;TACC0</name>
++            <name>TACC0</name>
+             <description>ADC test access register 0</description>
+             <addressOffset>0x4</addressOffset>
+             <size>32</size>
+@@ -10680,7 +10680,7 @@
+             </fields>
+           </register>
+           <register>
+-            <name>&lt;&gt;Reserved</name>
++            <name>Reserved</name>
+             <description />
+             <addressOffset>0xc</addressOffset>
+             <size>32</size>
+@@ -10700,7 +10700,7 @@
+           <description>CHCTL</description>
+           <addressOffset>0x580</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>ADC channel control register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -10743,7 +10743,7 @@
+           <description>CHDELAY</description>
+           <addressOffset>0x680</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>ADC channel delay register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -12159,7 +12159,7 @@
+           <description>Interrupt status register</description>
+           <addressOffset>0x10</addressOffset>
+           <size>32</size>
+-          <access>write-only</access>
++          <access>read-write</access>
+           <resetValue>0x1</resetValue>
+           <resetMask>0xFFFFFFFF</resetMask>
+           <fields>
+@@ -12204,7 +12204,7 @@
+           <description>HR</description>
+           <addressOffset>0x40</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Hash digest register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -12256,7 +12256,7 @@
+           <description>IV</description>
+           <addressOffset>0x0</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Initialization vector register 0</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -12285,7 +12285,7 @@
+           <description>TEXT_IN</description>
+           <addressOffset>0x10</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Input text regiter 0 (plain text / cipher text)</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -12314,7 +12314,7 @@
+           <description>KEY</description>
+           <addressOffset>0x20</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Secret key register 0</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -12639,7 +12639,7 @@
+           <description>TEXT_OUT</description>
+           <addressOffset>0x70</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Output text regiter 0 (cipher text / plain text)</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -16214,7 +16214,7 @@
+             <name>Reserved</name>
+             <description />
+             <addressOffset>0x7c</addressOffset>
+-            <size>0</size>
++            <size>32</size>
+             <access>read-write</access>
+             <resetValue>0x0</resetValue>
+             <resetMask>0xFFFFFFFF</resetMask>
+@@ -17557,7 +17557,7 @@
+           <name>Reserved</name>
+           <description />
+           <addressOffset>0x103c</addressOffset>
+-          <size>0</size>
++          <size>32</size>
+           <access>read-write</access>
+           <resetValue>0x0</resetValue>
+           <resetMask>0xFFFFFFFF</resetMask>
+@@ -17747,7 +17747,7 @@
+           <description>DATA</description>
+           <addressOffset>0x10</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Data Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -18029,7 +18029,7 @@
+           <description>ERRMASK</description>
+           <addressOffset>0x170</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Flash Data Mask Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -20381,7 +20381,7 @@
+           <description>TMRMUX</description>
+           <addressOffset>0x70</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>TMRxx ccix input select (0-3 array consist of full 32 bit register, 4-16 only CCI*_0)</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -21118,7 +21118,7 @@
+           <description>Nodes selftest start and status register</description>
+           <addressOffset>0x100</addressOffset>
+           <size>32</size>
+-          <access>write-only</access>
++          <access>read-write</access>
+           <resetValue>0x0</resetValue>
+           <resetMask>0xFFFFFFFF</resetMask>
+           <fields>
+@@ -21508,7 +21508,7 @@
+           <name>Reserved</name>
+           <description />
+           <addressOffset>0x144</addressOffset>
+-          <size>0</size>
++          <size>32</size>
+           <access>read-write</access>
+           <resetValue>0x0</resetValue>
+           <resetMask>0xFFFFFFFF</resetMask>
+@@ -23457,7 +23457,7 @@
+           <description>UARTCFG</description>
+           <addressOffset>0x50</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>UART Clock and Reset Configuration Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -23537,7 +23537,7 @@
+           <description>SPICFG</description>
+           <addressOffset>0x70</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>SPI Clock and Reset Configuration Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -23890,7 +23890,7 @@
+           <description>I2SCFG</description>
+           <addressOffset>0xa0</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>I2S Clock and Reset Configuration Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -23963,7 +23963,7 @@
+           <description>USBCFG</description>
+           <addressOffset>0xb0</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>USB Clock and Reset Configuration Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -24830,7 +24830,7 @@
+           <description>GPR</description>
+           <addressOffset>0x20</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>General purpose register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -25302,7 +25302,7 @@
+           <name>Reserved</name>
+           <description />
+           <addressOffset>0x28</addressOffset>
+-          <size>0</size>
++          <size>32</size>
+           <access>read-write</access>
+           <resetValue>0x0</resetValue>
+           <resetMask>0xFFFFFFFF</resetMask>
+@@ -25558,7 +25558,7 @@
+           <description>KEY</description>
+           <addressOffset>0x10</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Key register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -26050,7 +26050,7 @@
+           <description>FIFO</description>
+           <addressOffset>0x80</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>FIFO register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -26097,7 +26097,7 @@
+           <description>WINCFG</description>
+           <addressOffset>0x0</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Window Configuration</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -26453,7 +26453,7 @@
+           <name>Reserved</name>
+           <description />
+           <addressOffset>0x18</addressOffset>
+-          <size>0</size>
++          <size>32</size>
+           <access>read-write</access>
+           <resetValue>0x0</resetValue>
+           <resetMask>0xFFFFFFFF</resetMask>
+@@ -27691,7 +27691,7 @@
+           <description>DATA</description>
+           <addressOffset>0x10</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Data Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -27973,7 +27973,7 @@
+           <description>ERRMASK</description>
+           <addressOffset>0x170</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Flash Data Mask Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -32371,7 +32371,7 @@
+           <name>Reserved</name>
+           <description>MCP4921 control register</description>
+           <addressOffset>0x40</addressOffset>
+-          <size>0</size>
++          <size>32</size>
+           <access>read-write</access>
+           <resetValue>0x10102</resetValue>
+           <resetMask>0xFFFFFFFF</resetMask>
+@@ -33603,7 +33603,7 @@
+         <cluster>
+           <!--dimElementGroup-->
+           <dim>4</dim>
+-          <dimIncrement>12</dimIncrement>
++          <dimIncrement>16</dimIncrement>
+           <dimIndex>0-3</dimIndex>
+           <!--end of dimElementGroup-->
+           <name>CAPCOM[%s]</name>
+@@ -33716,7 +33716,7 @@
+             <name>Reserved</name>
+             <description />
+             <addressOffset>0xc</addressOffset>
+-            <size>0</size>
++            <size>32</size>
+             <access>read-write</access>
+             <resetValue>0x0</resetValue>
+             <resetMask>0xFFFFFFFF</resetMask>
+@@ -34041,7 +34041,7 @@
+           <description>DTX</description>
+           <addressOffset>0x0</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Transmitted data register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -34070,7 +34070,7 @@
+           <description>DRX</description>
+           <addressOffset>0x20</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Received data register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -37073,7 +37073,7 @@
+           <description>EADDR</description>
+           <addressOffset>0x28</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Extended address Register</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+@@ -38111,11 +38111,11 @@
+           <description>U_ITEM</description>
+           <addressOffset>0x40</addressOffset>
+           <register>
+-            <name />
++            <name>VALUE</name>
+             <description>Upstream item index 0</description>
+             <addressOffset>0x0</addressOffset>
+             <size>32</size>
+-            <access>write-only</access>
++            <access>read-write</access>
+             <resetValue>0x0</resetValue>
+             <resetMask>0xFFFFFFFF</resetMask>
+             <fields>

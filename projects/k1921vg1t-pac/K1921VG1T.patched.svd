@@ -4,7 +4,7 @@
   <!-- device vendor name -->
   <name>K1921VG1T</name>
   <!-- name of part -->
-  <series>K1921VKx</series>
+  <series>K1921VGx</series>
   <!-- device series the device belongs to -->
   <version>2.8</version>
   <!-- version of this description, adding CMSIS-SVD 1.1 tags -->
@@ -19,13 +19,13 @@
     </licenseText>
   <cpu>
     <!-- details about the cpu embedded in the device -->
-    <name>CM4</name>
+    <name>other</name>
     <revision>r0p1</revision>
     <endian>little</endian>
     <mpuPresent>true</mpuPresent>
     <fpuPresent>true</fpuPresent>
-    <vendorSystickConfig>false</vendorSystickConfig>
     <nvicPrioBits>4</nvicPrioBits>
+    <vendorSystickConfig>false</vendorSystickConfig>
   </cpu>
   <addressUnitBits>8</addressUnitBits>
   <!-- byte addressable memory -->
@@ -10412,7 +10412,7 @@
           <description>ACTL</description>
           <addressOffset>0x540</addressOffset>
           <register>
-            <name>ACTL</name>
+            <name>CTRL</name>
             <description>ADC module control register</description>
             <addressOffset>0x0</addressOffset>
             <size>32</size>
