@@ -14,6 +14,7 @@ extern "C" {
     fn WDT();
     fn RCU();
     fn RTC();
+    fn FLASH();
     fn SRAM();
     fn SIU();
     fn GPIOA();
@@ -172,6 +173,8 @@ extern "C" {
     fn I2S0_RX();
     fn I2S1_TX();
     fn I2S1_RX();
+    fn USB0();
+    fn USB1();
     fn QSPI0();
     fn QSPI1();
     fn CANFD0();
@@ -223,6 +226,7 @@ extern "C" {
     fn RTC_BATTERY();
     fn RTC_N_POWER();
     fn RTC_OVERFLOW();
+    fn PWMx_TZ();
     fn PWM0();
     fn PWM0_HD();
     fn PWM1();
@@ -273,7 +277,7 @@ pub static __EXTERNAL_INTERRUPTS: [Vector; 255] = [
     Vector { _handler: WDT },
     Vector { _handler: RCU },
     Vector { _handler: RTC },
-    Vector { _reserved: 0 },
+    Vector { _handler: FLASH },
     Vector { _handler: SRAM },
     Vector { _reserved: 0 },
     Vector { _handler: SIU },
@@ -441,8 +445,8 @@ pub static __EXTERNAL_INTERRUPTS: [Vector; 255] = [
     Vector { _handler: I2S0_RX },
     Vector { _handler: I2S1_TX },
     Vector { _handler: I2S1_RX },
-    Vector { _reserved: 0 },
-    Vector { _reserved: 0 },
+    Vector { _handler: USB0 },
+    Vector { _handler: USB1 },
     Vector { _handler: QSPI0 },
     Vector { _handler: QSPI1 },
     Vector { _reserved: 0 },
@@ -522,7 +526,7 @@ pub static __EXTERNAL_INTERRUPTS: [Vector; 255] = [
     Vector {
         _handler: RTC_OVERFLOW,
     },
-    Vector { _reserved: 0 },
+    Vector { _handler: PWMx_TZ },
     Vector { _handler: PWM0 },
     Vector { _handler: PWM0_HD },
     Vector { _handler: PWM1 },

@@ -8,6 +8,8 @@ pub enum Interrupt {
     RCU = 2,
     #[doc = "3 - RTC combine interrupt"]
     RTC = 3,
+    #[doc = "4 - FLASH (main array and data array) combine interrupt"]
+    FLASH = 4,
     #[doc = "5 - SRAM interrupt"]
     SRAM = 5,
     #[doc = "7 - System Interconnect Unit interrupt"]
@@ -324,6 +326,10 @@ pub enum Interrupt {
     I2S1_TX = 162,
     #[doc = "163 - I2S1 receive interrupt"]
     I2S1_RX = 163,
+    #[doc = "164 - USB0 interrupt"]
+    USB0 = 164,
+    #[doc = "165 - USB1 interrupt"]
+    USB1 = 165,
     #[doc = "166 - QSPI0 interrupt"]
     QSPI0 = 166,
     #[doc = "167 - QSPI1 interrupt"]
@@ -426,6 +432,8 @@ pub enum Interrupt {
     RTC_N_POWER = 217,
     #[doc = "218 - RTC counter overflow interrupt"]
     RTC_OVERFLOW = 218,
+    #[doc = "219 - PWM TZ combine interrupt"]
+    PWMx_TZ = 219,
     #[doc = "220 - PWM0 interrupt"]
     PWM0 = 220,
     #[doc = "221 - PWM0 HD interrupt"]
@@ -508,6 +516,7 @@ impl Interrupt {
             1 => Ok(Interrupt::WDT),
             2 => Ok(Interrupt::RCU),
             3 => Ok(Interrupt::RTC),
+            4 => Ok(Interrupt::FLASH),
             5 => Ok(Interrupt::SRAM),
             7 => Ok(Interrupt::SIU),
             8 => Ok(Interrupt::GPIOA),
@@ -666,6 +675,8 @@ impl Interrupt {
             161 => Ok(Interrupt::I2S0_RX),
             162 => Ok(Interrupt::I2S1_TX),
             163 => Ok(Interrupt::I2S1_RX),
+            164 => Ok(Interrupt::USB0),
+            165 => Ok(Interrupt::USB1),
             166 => Ok(Interrupt::QSPI0),
             167 => Ok(Interrupt::QSPI1),
             170 => Ok(Interrupt::CANFD0),
@@ -717,6 +728,7 @@ impl Interrupt {
             216 => Ok(Interrupt::RTC_BATTERY),
             217 => Ok(Interrupt::RTC_N_POWER),
             218 => Ok(Interrupt::RTC_OVERFLOW),
+            219 => Ok(Interrupt::PWMx_TZ),
             220 => Ok(Interrupt::PWM0),
             221 => Ok(Interrupt::PWM0_HD),
             222 => Ok(Interrupt::PWM1),

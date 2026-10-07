@@ -13528,6 +13528,11 @@
         <size>0x10</size>
         <usage>registers</usage>
       </addressBlock>
+      <interrupt>
+        <name>USB0</name>
+        <description>USB0 interrupt</description>
+        <value>164</value>
+      </interrupt>
       <registers>
         <!-- -->
         <!--HOSTEN: USB Host Enable register-->
@@ -14009,6 +14014,11 @@
     <peripheral derivedFrom="USBCTR0">
       <name>USBCTR1</name>
       <baseAddress>0x41090800</baseAddress>
+      <interrupt>
+        <name>USB1</name>
+        <description>USB1 interrupt</description>
+        <value>165</value>
+      </interrupt>
     </peripheral>
     <!--USBHC0-->
     <peripheral>
@@ -17578,6 +17588,11 @@
         <size>0x1a0</size>
         <usage>registers</usage>
       </addressBlock>
+      <interrupt>
+        <name>FLASH</name>
+        <description>FLASH (main array and data array) combine interrupt</description>
+        <value>4</value>
+      </interrupt>
       <registers>
         <!-- -->
         <!--ADDR: Address Register-->
@@ -24861,7 +24876,7 @@
       <access>read-write</access>
       <addressBlock>
         <offset>0</offset>
-        <size>0x1c</size>
+        <size>0xc04</size>
         <usage>registers</usage>
       </addressBlock>
       <interrupt>
@@ -28149,6 +28164,11 @@
         <size>0x9c</size>
         <usage>registers</usage>
       </addressBlock>
+      <interrupt>
+        <name>PWMx_TZ</name>
+        <description>PWM TZ combine interrupt</description>
+        <value>219</value>
+      </interrupt>
       <interrupt>
         <name>PWM0</name>
         <description>PWM0 interrupt</description>
@@ -32847,7 +32867,7 @@
       <access>read-write</access>
       <addressBlock>
         <offset>0</offset>
-        <size>0x130</size>
+        <size>0x140</size>
         <usage>registers</usage>
       </addressBlock>
       <interrupt>
