@@ -187,7 +187,19 @@
              <description>Secret key register 0</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -12639,7 +12639,7 @@
+@@ -12468,6 +12468,11 @@
+                   <value>1</value>
+                 </enumeratedValue>
+                 <enumeratedValue>
++                  <name>Magma</name>
++                  <description>GOST 34.12-2018 cipher with 64 bit block (Magma)</description>
++                  <value>2</value>
++                </enumeratedValue>
++                <enumeratedValue>
+                   <name>Kuznechik</name>
+                   <description>GOST 34.12-2018 cipher with 128 bit block (Kuznechik)</description>
+                   <value>3</value>
+@@ -12639,7 +12644,7 @@
            <description>TEXT_OUT</description>
            <addressOffset>0x70</addressOffset>
            <register>
@@ -196,7 +208,7 @@
              <description>Output text regiter 0 (cipher text / plain text)</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -13528,6 +13528,11 @@
+@@ -13528,6 +13533,11 @@
          <size>0x10</size>
          <usage>registers</usage>
        </addressBlock>
@@ -208,7 +220,7 @@
        <registers>
          <!-- -->
          <!--HOSTEN: USB Host Enable register-->
-@@ -14009,6 +14014,11 @@
+@@ -14009,6 +14019,11 @@
      <peripheral derivedFrom="USBCTR0">
        <name>USBCTR1</name>
        <baseAddress>0x41090800</baseAddress>
@@ -220,7 +232,7 @@
      </peripheral>
      <!--USBHC0-->
      <peripheral>
-@@ -16214,7 +16224,7 @@
+@@ -16214,7 +16229,7 @@
              <name>Reserved</name>
              <description />
              <addressOffset>0x7c</addressOffset>
@@ -229,7 +241,7 @@
              <access>read-write</access>
              <resetValue>0x0</resetValue>
              <resetMask>0xFFFFFFFF</resetMask>
-@@ -17557,7 +17567,7 @@
+@@ -17557,7 +17572,7 @@
            <name>Reserved</name>
            <description />
            <addressOffset>0x103c</addressOffset>
@@ -238,7 +250,7 @@
            <access>read-write</access>
            <resetValue>0x0</resetValue>
            <resetMask>0xFFFFFFFF</resetMask>
-@@ -17578,6 +17588,11 @@
+@@ -17578,6 +17593,11 @@
          <size>0x1a0</size>
          <usage>registers</usage>
        </addressBlock>
@@ -250,7 +262,7 @@
        <registers>
          <!-- -->
          <!--ADDR: Address Register-->
-@@ -17747,7 +17762,7 @@
+@@ -17747,7 +17767,7 @@
            <description>DATA</description>
            <addressOffset>0x10</addressOffset>
            <register>
@@ -259,7 +271,7 @@
              <description>Data Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -18029,7 +18044,7 @@
+@@ -18029,7 +18049,7 @@
            <description>ERRMASK</description>
            <addressOffset>0x170</addressOffset>
            <register>
@@ -268,7 +280,7 @@
              <description>Flash Data Mask Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -20381,7 +20396,7 @@
+@@ -20381,7 +20401,7 @@
            <description>TMRMUX</description>
            <addressOffset>0x70</addressOffset>
            <register>
@@ -277,7 +289,7 @@
              <description>TMRxx ccix input select (0-3 array consist of full 32 bit register, 4-16 only CCI*_0)</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -21118,7 +21133,7 @@
+@@ -21118,7 +21138,7 @@
            <description>Nodes selftest start and status register</description>
            <addressOffset>0x100</addressOffset>
            <size>32</size>
@@ -286,7 +298,7 @@
            <resetValue>0x0</resetValue>
            <resetMask>0xFFFFFFFF</resetMask>
            <fields>
-@@ -21508,7 +21523,7 @@
+@@ -21508,7 +21528,7 @@
            <name>Reserved</name>
            <description />
            <addressOffset>0x144</addressOffset>
@@ -295,7 +307,7 @@
            <access>read-write</access>
            <resetValue>0x0</resetValue>
            <resetMask>0xFFFFFFFF</resetMask>
-@@ -23457,7 +23472,7 @@
+@@ -23457,7 +23477,7 @@
            <description>UARTCFG</description>
            <addressOffset>0x50</addressOffset>
            <register>
@@ -304,7 +316,7 @@
              <description>UART Clock and Reset Configuration Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -23537,7 +23552,7 @@
+@@ -23537,7 +23557,7 @@
            <description>SPICFG</description>
            <addressOffset>0x70</addressOffset>
            <register>
@@ -313,7 +325,7 @@
              <description>SPI Clock and Reset Configuration Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -23890,7 +23905,7 @@
+@@ -23890,7 +23910,7 @@
            <description>I2SCFG</description>
            <addressOffset>0xa0</addressOffset>
            <register>
@@ -322,7 +334,7 @@
              <description>I2S Clock and Reset Configuration Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -23963,7 +23978,7 @@
+@@ -23963,7 +23983,7 @@
            <description>USBCFG</description>
            <addressOffset>0xb0</addressOffset>
            <register>
@@ -331,7 +343,7 @@
              <description>USB Clock and Reset Configuration Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -24830,7 +24845,7 @@
+@@ -24830,7 +24850,7 @@
            <description>GPR</description>
            <addressOffset>0x20</addressOffset>
            <register>
@@ -340,7 +352,7 @@
              <description>General purpose register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -24861,7 +24876,7 @@
+@@ -24861,7 +24881,7 @@
        <access>read-write</access>
        <addressBlock>
          <offset>0</offset>
@@ -349,7 +361,7 @@
          <usage>registers</usage>
        </addressBlock>
        <interrupt>
-@@ -25302,7 +25317,7 @@
+@@ -25302,7 +25322,7 @@
            <name>Reserved</name>
            <description />
            <addressOffset>0x28</addressOffset>
@@ -358,7 +370,7 @@
            <access>read-write</access>
            <resetValue>0x0</resetValue>
            <resetMask>0xFFFFFFFF</resetMask>
-@@ -25558,7 +25573,7 @@
+@@ -25558,7 +25578,7 @@
            <description>KEY</description>
            <addressOffset>0x10</addressOffset>
            <register>
@@ -367,7 +379,7 @@
              <description>Key register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -26050,7 +26065,7 @@
+@@ -26050,7 +26070,7 @@
            <description>FIFO</description>
            <addressOffset>0x80</addressOffset>
            <register>
@@ -376,7 +388,7 @@
              <description>FIFO register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -26097,7 +26112,7 @@
+@@ -26097,7 +26117,7 @@
            <description>WINCFG</description>
            <addressOffset>0x0</addressOffset>
            <register>
@@ -385,7 +397,7 @@
              <description>Window Configuration</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -26453,7 +26468,7 @@
+@@ -26453,7 +26473,7 @@
            <name>Reserved</name>
            <description />
            <addressOffset>0x18</addressOffset>
@@ -394,7 +406,7 @@
            <access>read-write</access>
            <resetValue>0x0</resetValue>
            <resetMask>0xFFFFFFFF</resetMask>
-@@ -27691,7 +27706,7 @@
+@@ -27691,7 +27711,7 @@
            <description>DATA</description>
            <addressOffset>0x10</addressOffset>
            <register>
@@ -403,7 +415,7 @@
              <description>Data Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -27973,7 +27988,7 @@
+@@ -27973,7 +27993,7 @@
            <description>ERRMASK</description>
            <addressOffset>0x170</addressOffset>
            <register>
@@ -412,7 +424,7 @@
              <description>Flash Data Mask Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -28150,6 +28165,11 @@
+@@ -28150,6 +28170,11 @@
          <usage>registers</usage>
        </addressBlock>
        <interrupt>
@@ -424,7 +436,7 @@
          <name>PWM0</name>
          <description>PWM0 interrupt</description>
          <value>220</value>
-@@ -32371,7 +32391,7 @@
+@@ -32371,7 +32396,7 @@
            <name>Reserved</name>
            <description>MCP4921 control register</description>
            <addressOffset>0x40</addressOffset>
@@ -433,7 +445,7 @@
            <access>read-write</access>
            <resetValue>0x10102</resetValue>
            <resetMask>0xFFFFFFFF</resetMask>
-@@ -32847,7 +32867,7 @@
+@@ -32847,7 +32872,7 @@
        <access>read-write</access>
        <addressBlock>
          <offset>0</offset>
@@ -442,7 +454,7 @@
          <usage>registers</usage>
        </addressBlock>
        <interrupt>
-@@ -33603,7 +33623,7 @@
+@@ -33603,7 +33628,7 @@
          <cluster>
            <!--dimElementGroup-->
            <dim>4</dim>
@@ -451,7 +463,7 @@
            <dimIndex>0-3</dimIndex>
            <!--end of dimElementGroup-->
            <name>CAPCOM[%s]</name>
-@@ -33716,7 +33736,7 @@
+@@ -33716,7 +33741,7 @@
              <name>Reserved</name>
              <description />
              <addressOffset>0xc</addressOffset>
@@ -460,7 +472,7 @@
              <access>read-write</access>
              <resetValue>0x0</resetValue>
              <resetMask>0xFFFFFFFF</resetMask>
-@@ -34041,7 +34061,7 @@
+@@ -34041,7 +34066,7 @@
            <description>DTX</description>
            <addressOffset>0x0</addressOffset>
            <register>
@@ -469,7 +481,7 @@
              <description>Transmitted data register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -34070,7 +34090,7 @@
+@@ -34070,7 +34095,7 @@
            <description>DRX</description>
            <addressOffset>0x20</addressOffset>
            <register>
@@ -478,7 +490,7 @@
              <description>Received data register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -37073,7 +37093,7 @@
+@@ -37073,7 +37098,7 @@
            <description>EADDR</description>
            <addressOffset>0x28</addressOffset>
            <register>
@@ -487,7 +499,7 @@
              <description>Extended address Register</description>
              <addressOffset>0x0</addressOffset>
              <size>32</size>
-@@ -38111,11 +38131,11 @@
+@@ -38111,11 +38136,11 @@
            <description>U_ITEM</description>
            <addressOffset>0x40</addressOffset>
            <register>

@@ -67,6 +67,8 @@ pub enum Algorithm {
     Aes128 = 0,
     #[doc = "1: AES 256 bit key"]
     Aes256 = 1,
+    #[doc = "2: GOST 34.12-2018 cipher with 64 bit block (Magma)"]
+    Magma = 2,
     #[doc = "3: GOST 34.12-2018 cipher with 128 bit block (Kuznechik)"]
     Kuznechik = 3,
 }
@@ -85,12 +87,13 @@ pub type AlgorithmR = crate::FieldReader<Algorithm>;
 impl AlgorithmR {
     #[doc = "Get enumerated values variant"]
     #[inline(always)]
-    pub const fn variant(&self) -> Option<Algorithm> {
+    pub const fn variant(&self) -> Algorithm {
         match self.bits {
-            0 => Some(Algorithm::Aes128),
-            1 => Some(Algorithm::Aes256),
-            3 => Some(Algorithm::Kuznechik),
-            _ => None,
+            0 => Algorithm::Aes128,
+            1 => Algorithm::Aes256,
+            2 => Algorithm::Magma,
+            3 => Algorithm::Kuznechik,
+            _ => unreachable!(),
         }
     }
     #[doc = "AES 128 bit key"]
@@ -103,6 +106,11 @@ impl AlgorithmR {
     pub fn is_aes_256(&self) -> bool {
         *self == Algorithm::Aes256
     }
+    #[doc = "GOST 34.12-2018 cipher with 64 bit block (Magma)"]
+    #[inline(always)]
+    pub fn is_magma(&self) -> bool {
+        *self == Algorithm::Magma
+    }
     #[doc = "GOST 34.12-2018 cipher with 128 bit block (Kuznechik)"]
     #[inline(always)]
     pub fn is_kuznechik(&self) -> bool {
@@ -110,7 +118,7 @@ impl AlgorithmR {
     }
 }
 #[doc = "Field `ALGORITHM` writer - "]
-pub type AlgorithmW<'a, REG> = crate::FieldWriter<'a, REG, 2, Algorithm>;
+pub type AlgorithmW<'a, REG> = crate::FieldWriter<'a, REG, 2, Algorithm, crate::Safe>;
 impl<'a, REG> AlgorithmW<'a, REG>
 where
     REG: crate::Writable + crate::RegisterSpec,
@@ -125,6 +133,11 @@ where
     #[inline(always)]
     pub fn aes_256(self) -> &'a mut crate::W<REG> {
         self.variant(Algorithm::Aes256)
+    }
+    #[doc = "GOST 34.12-2018 cipher with 64 bit block (Magma)"]
+    #[inline(always)]
+    pub fn magma(self) -> &'a mut crate::W<REG> {
+        self.variant(Algorithm::Magma)
     }
     #[doc = "GOST 34.12-2018 cipher with 128 bit block (Kuznechik)"]
     #[inline(always)]

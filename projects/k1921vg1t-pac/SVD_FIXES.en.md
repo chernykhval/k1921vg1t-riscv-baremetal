@@ -11,7 +11,7 @@ document lists every defect found: what was fixed, on what grounds, and what was
 | | |
 |---|---|
 | Original SVD | `tools/svd/K1921VG1T.svd` from [k1921vg1t_sdk](https://gitflic.ru/project/niiet/k1921vg1t_sdk), commit `9fa40f85be5b` (2026-07-14), `<version>2.8</version>`, SHA-256 `56c48c5763a8948205322001c5e57b5ffa1b0655e537edd26d084e451553400c` |
-| Fixed SVD | [`K1921VG1T.patched.svd`](K1921VG1T.patched.svd), SHA-256 `65bb7a392aafa3081d4b6a57572178269a6beee35672311321dacee3cbed9e29` |
+| Fixed SVD | [`K1921VG1T.patched.svd`](K1921VG1T.patched.svd), SHA-256 `5c2766591523ee45573ace3116dddfaa16edab9ca547856692ac2213acd40064` |
 | All changes | [`K1921VG1T.svd.diff`](K1921VG1T.svd.diff) — unified diff against the original file |
 | Generator | svd2rust 0.37.1, form 0.13.0, rustfmt 1.9.0 |
 | Reference documentation | K1921VG1T User Manual (UM_K1921VG1T_10YA, in Russian), "UM" below; page numbers are the printed ones |
@@ -75,12 +75,13 @@ comparing the SVD with the UM and with the `K1921VG1T.h` header from the same SD
 | 12 | Status fields of HASH.SR are marked `write-only` | documented, not changed |
 | 13 | TMR4–TMR15 inherit four CAPCOM blocks from TMR0; per the UM they have one | documented, not changed |
 | 14 | Reset values of HASH.SR and MSC.U_ITEM disagree with the UM | documented, not changed |
+| 15 | The CRYPTO.CONTROL.ALGORITHM enumeration lacks the "Magma" value | fixed |
 
 **Group C — traces of an ARM example.** The file header matches the header of the `ARM_Example.svd`
 example from ARM's CMSIS_5 package. Details below; only two fields were changed.
 
-In total `K1921VG1T.svd.diff` contains the 48 places of group A, 6 changes of group B (two block
-sizes and four interrupts) and 2 metadata fields of group C.
+In total `K1921VG1T.svd.diff` contains the 48 places of group A, 7 changes of group B (two block
+sizes, four interrupts and the "Magma" value) and 2 metadata fields of group C.
 
 ## Group A in detail
 
@@ -264,6 +265,21 @@ sizes and four interrupts) and 2 metadata fields of group C.
   the board after reset, which was not done. For MSC.U_ITEM, different reset values would require
   describing the array elements as separate registers; this was not done.
 
+### 15. The "Magma" value of CRYPTO.CONTROL.ALGORITHM (fixed)
+
+- **Where:** lines 12454–12475, the `ALGORITHM` field of `CRYPTO.CONTROL`.
+- **What:** the enumeration has three values: 0 — `AES_128`, 1 — `AES_256`, 3 — `Kuznechik`. Value 2 is
+  missing.
+- **Check:** per the UM the CRYPTO module implements AES-128, AES-256, "Kuznyechik" and "Magma" (p. 324),
+  and the `ALGORITHM` field takes the values 00 — AES_128, 01 — AES_256, 10 — MAGMA, 11 — KUZNECHIK
+  (p. 337; the same in the CONTROL register table, pp. 794–795). The `K1921VG1T.h` header of the same SDK has `CRYPTO_CONTROL_ALGORITHM_Magma = 0x2` (with the
+  description "GCM payload phase", which does not belong to this field).
+- **Fix:** the value `Magma` = 2 was added with the description "GOST 34.12-2018 cipher with 64 bit block
+  (Magma)" — as written in the SVD of the vendor's new SDK (see the section below).
+- **Effect on the PAC:** without this value, 2 (Magma) could only be written with the unsafe `bits()`
+  method, and `variant()` returned an `Option` on read. After the fix the field has a `magma()` method
+  and a safe `set()` method, and `variant()` returns the value without `Option`. The example firmware did not change: checked by comparing the images.
+
 ## Group C — traces of an ARM example
 
 The header of the original file matches the header of the
@@ -292,7 +308,8 @@ In `k1921vg1t_sdk` the SVD file has not changed since commit `9fa40f85be5b` (che
 In the vendor's new SDK [riscv_cmake_sdk](https://gitflic.ru/project/niiet/riscv_cmake_sdk)
 (file `tools/svd/K1921VG1T.svd`, checked at commit `ae5a8e69dfe0`) some of the described defects are
 fixed: it has no defects of classes 1–5, the WDT block size is `0xc04` (item 9), the MCP4921 register
-is removed from DAC0 (item 10), and the USB0, USB1 and PWMxTZ interrupts are added (item 11). Classes
+is removed from DAC0 (item 10), and the USB0, USB1 and PWMxTZ interrupts (item 11) and the "Magma"
+value (item 15) are added. Classes
 6–8, the TMR0 block size `0x130`, the missing FLASH and L2_ERROR interrupts, and items 12–14 remain.
 svd2rust does not accept this file: generation stops at the class 6 error.
 
@@ -307,9 +324,9 @@ svd2rust does not accept this file: generation stops at the class 6 error.
    Remaining hits: 298 addresses holding more than one register (counting arrays and derived
    peripherals) — all declared via `<alternateRegister>`, in FLASHM and FLASHD as a chain of four
    registers; and the `+0x40` register of DAC0 and DAC1 outside the `addressBlock` (item 10).
-3. **Comparison with the SDK header** `platform/Device/K1921VG1T/Include/K1921VG1T.h`: base addresses
-   and interrupt numbers.
-4. **Comparison with the UM** — items 6, 7, 9–14, plus the whole interrupt table 13.1 and memory
+3. **Comparison with the SDK header** `platform/Device/K1921VG1T/Include/K1921VG1T.h`: base addresses,
+   interrupt numbers, the CRYPTO.CONTROL.ALGORITHM enumeration (item 15).
+4. **Comparison with the UM** — items 6, 7, 9–15, plus the whole interrupt table 13.1 and memory
    map 8.2. The values in items 2, 3, 4 and 8 (the number 4, the name `VALUE`, the width 32, the name
    `CTRL`) were chosen by the author and not checked against the UM.
 

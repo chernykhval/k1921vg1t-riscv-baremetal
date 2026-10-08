@@ -12468,6 +12468,11 @@
                   <value>1</value>
                 </enumeratedValue>
                 <enumeratedValue>
+                  <name>Magma</name>
+                  <description>GOST 34.12-2018 cipher with 64 bit block (Magma)</description>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
                   <name>Kuznechik</name>
                   <description>GOST 34.12-2018 cipher with 128 bit block (Kuznechik)</description>
                   <value>3</value>
