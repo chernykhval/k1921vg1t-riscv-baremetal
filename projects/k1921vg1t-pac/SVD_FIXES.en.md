@@ -261,9 +261,13 @@ sizes, four interrupts and the "Magma" value) and 2 metadata fields of group C.
 - **MSC.U_ITEM[%s]**: the SVD has reset value 0 for all elements, the UM (p. 699) "Сброс: 400h * i"
   (reset: 400h × i), i.e. each entry has its own value. A single `resetValue` for the elements of an
   SVD array cannot express that.
-- **Why not fixed:** for HASH.SR the sources disagree; this can be checked by reading the register on
-  the board after reset, which was not done. For MSC.U_ITEM, different reset values would require
-  describing the array elements as separate registers; this was not done.
+- **Board check (HASH.SR):** after a reset of the microcontroller, the HASH block clock was enabled and
+  its reset released through the debugger (bit `HASHEN` in `RCU.CGCFGAHB` and `RCU.RSTDISAHB`), then the
+  `SR` register was read: `0x00000001`. This matches the SVD and disagrees with the UM. Bit 0 is the
+  `DINIS` flag "input buffer ready". The check was done on one board.
+- **Why not fixed:** for HASH.SR the SVD value is confirmed by reading on the board. For
+  MSC.U_ITEM, different reset values would require describing the array elements as separate
+  registers; this was not done.
 
 ### 15. The "Magma" value of CRYPTO.CONTROL.ALGORITHM (fixed)
 

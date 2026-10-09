@@ -173,6 +173,9 @@ Then press the RESET button (SB2) on the board.
   K1921VG015, K1921VG1T… microcontrollers", in Russian, p. 5); the repository configurations use 200 kHz.
 - The OpenOCD configuration has no reset control (`reset_config none`), so the board has to be reset
   with the SB2 button after flashing.
+- If OpenOCD reports `libusb_open() failed with LIBUSB_ERROR_NOT_FOUND`, channel B of the adapter has
+  the FTDI driver again instead of WinUSB: replace it with Zadig once more (see "Hardware"). OpenOCD
+  exits with code 0 on this error, so success can only be judged from its output.
 - The C examples were tested with the `k1921vg1t_sdk` SDK at commit `9fa40f85be5b`. Compatibility with
   newer SDK versions and with the vendor's new SDK
   [riscv_cmake_sdk](https://gitflic.ru/project/niiet/riscv_cmake_sdk) was not checked.
