@@ -72,7 +72,7 @@ void periph_init()
 void delay()
 {
 	uint32_t i;
-	for(i=0;i<20000000;i++) __asm("nop");   // original value: 100000
+	for(i=0;i<500000;i++) __asm("nop");   // original value: 100000
 }
 
 volatile uint32_t led_shift;
