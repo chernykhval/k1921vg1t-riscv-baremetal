@@ -90,7 +90,10 @@ fn main() -> ! {
     // HSI self-measurement: the core and TMR0 run from HSI, the UART runs from the accurate
     // HSE crystal. Sending N bytes at 9600 baud takes exactly N * 10 / 9600 s (10 bits per
     // byte), so the number of TMR0 ticks during the transfer gives the HSI frequency.
+    // Wait until the text above has left the 32-byte TX FIFO, otherwise its bytes are
+    // counted as part of the N bytes and the result comes out too high.
     const N: u32 = 2000;
+    while p.uart0.fr().read().busy().bit_is_set() {}
     let t0 = p.tmr0.count().read().val().bits();
     for _ in 0..N {
         uart0_send_byte(&p, b'.');

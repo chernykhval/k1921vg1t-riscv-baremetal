@@ -180,8 +180,10 @@ Then press the RESET button (SB2) on the board.
   newer SDK versions and with the vendor's new SDK
   [riscv_cmake_sdk](https://gitflic.ru/project/niiet/riscv_cmake_sdk) was not checked.
 - In SDK version `9fa40f85be5b` the PLL setup block for the 27 MHz crystal is labelled
-  "FOUT = 204 000 000 Hz", while its dividers give 150 MHz; in later SDK versions the label was
-  corrected to 150 MHz. The `rust_pll` example sets PLL0 to 150 MHz.
+  "FOUT = 204 000 000 Hz", while its dividers give 150 MHz. The same block sets 2 extra flash
+  read wait states (`FLASHM->CTRL_bit.LAT = 2`), while table 9.1 of the user manual requires 4 for
+  150 MHz (the 140–175 MHz range). In later SDK versions the label was corrected to 150 MHz and the wait
+  states were increased to 5. The `rust_pll` example sets PLL0 to 150 MHz with 4 wait states.
 - In `k1921vg1t_sdk` at commit `9fa40f85be5b` the OpenOCD configuration specifies JTAG ID `0xDEB05001`
   and 2000 kHz; the configuration in this repository uses ID `0xDEB15001`, read from the chip, and
   200 kHz. In later SDK versions the ID was corrected.

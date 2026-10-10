@@ -70,6 +70,9 @@ fn tmr0_counter_start(p: &pac::Peripherals) {
 
 fn measure_sysclk(p: &pac::Peripherals) -> u32 {
     const N: u32 = 2000;
+    // Start with an empty 32-byte TX FIFO: bytes left from earlier output would be counted
+    // as part of the N bytes and make the result too high.
+    while p.uart0.fr().read().busy().bit_is_set() {}
     let t0 = p.tmr0.count().read().val().bits();
     for _ in 0..N {
         uart0_send_byte(p, b'.');
@@ -83,9 +86,8 @@ fn measure_sysclk(p: &pac::Peripherals) -> u32 {
 // Switch the system clock to PLL0 using the NIIET SDK settings for a 27 MHz HSE
 // (system_k1921vg1t.c). The SDK comment says "FOUT = 204 000 000 Hz", but by the SDK's
 // own formula F = HSE * NDIV / ((RDIV + 1) * (DIV1A + 1) * (DIV1B + 1)) (PREDIV is not
-// used with VCOMODE = 1) they give 27 MHz * 100 / (3 * 2 * 3) = 150 MHz;
-// about 150.9 MHz was measured.
-// Wrong settings hang the chip; the order of the steps matters.
+// used with VCOMODE = 1) they give 27 MHz * 100 / (3 * 2 * 3) = 150 MHz.
+// The order of the steps matters.
 fn pll_init(p: &pac::Peripherals) {
     // 1. The PLL reference (HSE) must be running.
     p.rcu.hsecfg().modify(|_, w| w.en().set_bit());
@@ -125,8 +127,10 @@ fn pll_init(p: &pac::Peripherals) {
         unsafe { core::arch::asm!("nop") };
     }
 
-    // 4. Increase the flash latency before raising the clock (the SDK sets LAT = 2 too).
-    p.flashm.ctrl().modify(|_, w| unsafe { w.lat().bits(2) });
+    // 4. Increase the flash wait states before raising the clock: for 150 MHz (the 140-175 MHz
+    //    range) table 9.1 of the user manual requires 4. SDK commit 9fa40f85be5b sets only 2,
+    //    later SDK versions set 5.
+    p.flashm.ctrl().modify(|_, w| unsafe { w.lat().bits(4) });
 
     // 5. Switch the system clock to PLL0 (SRC = 2) and wait for the switch.
     p.rcu.sysclkcfg().write(|w| unsafe { w.src().bits(2) });
