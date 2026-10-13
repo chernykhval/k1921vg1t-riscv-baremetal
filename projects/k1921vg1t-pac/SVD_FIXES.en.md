@@ -312,7 +312,7 @@ In `k1921vg1t_sdk` the SVD file has not changed since commit `9fa40f85be5b` (che
 In the vendor's new SDK [riscv_cmake_sdk](https://gitflic.ru/project/niiet/riscv_cmake_sdk)
 (file `tools/svd/K1921VG1T.svd`, checked at commit `ae5a8e69dfe0`) some of the described defects are
 fixed: it has no defects of classes 1–5, the WDT block size is `0xc04` (item 9), the MCP4921 register
-is removed from DAC0 (item 10), and the USB0, USB1 and PWMxTZ interrupts (item 11) and the "Magma"
+is removed from DAC0 (item 10), and the USB0, USB1 and PWMx_TZ interrupts (item 11) and the "Magma"
 value (item 15) are added. Classes
 6–8, the TMR0 block size `0x130`, the missing FLASH and L2_ERROR interrupts, and items 12–14 remain.
 svd2rust does not accept this file: generation stops at the class 6 error.

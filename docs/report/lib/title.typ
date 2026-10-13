@@ -21,7 +21,6 @@
   stack(
     spacing: 0.7em,
     [Автор: #author, ННГУ им. Н.И. Лобачевского, группа 3824Б1ПР2],
-    [Куратор программы DEVBOARDS: Дубовая С.Ю.],
     [Материалы: #link(repo)],
   )
 
@@ -31,8 +30,9 @@
     stroke: 0.5pt + luma(120),
     inset: 8pt,
     text(size: 10pt)[
-      © 2026 #author. Материалы распространяются на условиях лицензии
-      Creative Commons «С указанием авторства» версии 4.0 Международная (CC BY 4.0):
+      // The author string already ends with a dot ("Черных В.А.").
+      © 2026 #author Материалы распространяются на условиях лицензии
+      Creative Commons «С~указанием авторства» версии 4.0 Международная (CC BY 4.0): \
       #link("https://creativecommons.org/licenses/by/4.0/legalcode.ru")
     ],
   )

@@ -59,7 +59,7 @@ The names `value` and `ctrl` were introduced when fixing the SVD (items 3 and 8 
 ## Regeneration
 
 The commands that produce `src/` are given in [SVD_FIXES.en.md](SVD_FIXES.en.md#inputs). With the
-same tool versions the result is byte-identical to the repository (checked on Windows).
+same tool versions the result is byte-identical to the repository (checked by CI on Linux and Windows).
 
 ## License
 

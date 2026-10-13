@@ -19,6 +19,7 @@
 #pagebreak()
 #outline(title: "Содержание", depth: 2)
 
+#include "chapters/00-terms.typ"
 #include "chapters/01-abstract.typ"
 #include "chapters/02-relevance-novelty.typ"
 #include "chapters/03-environment.typ"
@@ -31,17 +32,14 @@
 
 #bibliography("refs.yml", title: "Список источников", style: "gost-r-705-2008-numeric")
 
-// Appendices: headings "Приложение А", "Приложение Б", ...
-#let letters = "АБВГДЕЖИКЛМН".clusters()
-#counter(heading).update(0)
-#set heading(numbering: (..n) => {
-  let n = n.pos()
-  letters.at(n.first() - 1) + "." + n.slice(1).map(str).join(".") + (if n.len() > 1 { "." } else { "" })
-})
+// Appendices: unnumbered level-1 headings whose text starts with "Приложение А." etc., so the
+// same text appears in the heading and in the table of contents (GOST 7.32) without widening
+// the number column of the contents.
+#set heading(numbering: none)
 #show heading.where(level: 1): it => {
   pagebreak(weak: true)
   set text(size: 16pt)
-  block(above: 1.4em, below: 0.9em)[Приложение #counter(heading).display() #it.body]
+  block(above: 1.4em, below: 0.9em, it.body)
 }
 #include "appendix/a-svd-fixes.typ"
 #include "appendix/b-jtag-wiring.typ"

@@ -18,6 +18,7 @@ The work was done within the DEVBOARDS programme of the RISC-V Alliance (Russia)
 | `projects/run_leds/`, `projects/binary_counter/`, `projects/led_breath/` | C examples, built with the vendor SDK |
 | [`openocd/`](openocd/) | OpenOCD configurations for the FT2232HL Board adapter and K1921VG1T |
 | [`Taskfile.yml`](Taskfile.yml) | build and flash commands for the Rust examples ([Task](https://taskfile.dev)) |
+| [`docs/report/`](docs/report/) | source of the research report (typst, in Russian); build: `typst compile --root . --ignore-system-fonts docs/report/main.typ` |
 | [`NOTICE.md`](NOTICE.md), [`LICENSE`](LICENSE), `LICENSES/` | licenses |
 
 ## Rust examples
@@ -82,6 +83,7 @@ XP7 pin 1 (+3.3 V) is not connected to the adapter.
 | For C: NIIET SDK | [gitflic.ru/project/niiet/k1921vg1t_sdk](https://gitflic.ru/project/niiet/k1921vg1t_sdk) | commit `9fa40f85be5b` |
 | For C: compiler | [xPack riscv-none-elf-gcc](https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases) | 13.4.0-1 |
 | For C: make | GNU make (the `clean` rule expects the Windows command prompt) | GNU Make 3.81 |
+| For the report: typst | [typst releases](https://github.com/typst/typst/releases) | 0.14.2 |
 
 The NIIET OpenOCD is required: the configuration uses the `k1921vg1t` flash driver from this fork.
 Documentation on the microcontroller (user manual, errata, in Russian) is in the
@@ -192,5 +194,5 @@ Then press the RESET button (SB2) on the board.
 
 © 2026 Valentin Chernykh (Черных В.А.). Unless stated otherwise, the materials in this repository are
 licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode). Third-party files
-(the NIIET SVD description and example, svd2rust template code, OpenOCD configurations) are under
+(the NIIET SVD description and example, svd2rust template code, OpenOCD configurations, Makefiles, etc.) are under
 their own licenses — see [NOTICE.md](NOTICE.md).

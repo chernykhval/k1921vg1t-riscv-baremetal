@@ -18,6 +18,7 @@ RV32IMAFDCP) на C и на Rust (`no_std`), Rust-крейт доступа к �
 | `projects/run_leds/`, `projects/binary_counter/`, `projects/led_breath/` | примеры на C, собираются с SDK производителя |
 | [`openocd/`](openocd/) | конфигурации OpenOCD для адаптера FT2232HL Board и К1921ВГ1Т |
 | [`Taskfile.yml`](Taskfile.yml) | команды сборки и прошивки Rust-примеров ([Task](https://taskfile.dev)) |
+| [`docs/report/`](docs/report/) | исходный текст исследовательской записки (typst); сборка: `typst compile --root . --ignore-system-fonts docs/report/main.typ` |
 | [`NOTICE.md`](NOTICE.md), [`LICENSE`](LICENSE), `LICENSES/` | лицензии |
 
 ## Примеры на Rust
@@ -81,6 +82,7 @@ RV32IMAFDCP) на C и на Rust (`no_std`), Rust-крейт доступа к �
 | Для C: SDK НИИЭТ | [gitflic.ru/project/niiet/k1921vg1t_sdk](https://gitflic.ru/project/niiet/k1921vg1t_sdk) | коммит `9fa40f85be5b` |
 | Для C: компилятор | [xPack riscv-none-elf-gcc](https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases) | 13.4.0-1 |
 | Для C: make | GNU make (правило `clean` рассчитано на командную строку Windows) | GNU Make 3.81 |
+| Для записки: typst | [выпуски typst](https://github.com/typst/typst/releases) | 0.14.2 |
 
 Нужен именно OpenOCD НИИЭТ: конфигурация использует драйвер flash-памяти `k1921vg1t` из этого форка.
 Документация на микроконтроллер (руководство пользователя, errata, на русском языке) — в репозитории
@@ -193,5 +195,5 @@ openocd -s openocd -f connect_ft2232_jtag.cfg -c halt \
 
 © 2026 Черных В.А. Материалы репозитория распространяются на условиях лицензии
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode.ru), если не указано иное.
-Сторонние файлы (SVD-описание и пример НИИЭТ, шаблонный код svd2rust, конфигурации OpenOCD)
+Сторонние файлы (SVD-описание и пример НИИЭТ, шаблонный код svd2rust, конфигурации OpenOCD, Makefile и др.)
 распространяются на условиях своих лицензий — подробно в [NOTICE.md](NOTICE.md).
