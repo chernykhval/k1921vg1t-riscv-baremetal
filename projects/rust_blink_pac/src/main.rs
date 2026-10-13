@@ -8,7 +8,7 @@ use riscv_rt::entry;
 
 #[entry]
 fn main() -> ! {
-    // steal(): take the peripherals without the singleton check (single-threaded program).
+    // steal(): no singleton check (the program is single-threaded).
     let p = unsafe { pac::Peripherals::steal() };
 
     // Enable the GPIOC clock and release its reset (read-modify-write of one bit).
